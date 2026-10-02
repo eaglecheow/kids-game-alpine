@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 550" fill="none">
+  <defs>
+    <pattern id="wall" width="52" height="52" patternUnits="userSpaceOnUse"><path d="M26 12v8m-4-4h8" stroke="#d9c9a5" stroke-width="2" stroke-linecap="round" opacity=".36"/><circle cx="0" cy="38" r="1.5" fill="#d9c9a5" opacity=".4"/></pattern>
+    <pattern id="tile" width="80" height="60" patternUnits="userSpaceOnUse"><path d="M0 0h80v60H0Z" fill="#e6c69c"/><path d="M0 60l40-30L80 0M0 0l40 30 40 30" stroke="#d9b78f" stroke-width="2"/></pattern>
+    <symbol id="cookie" viewBox="0 0 50 50"><ellipse cx="25" cy="28" rx="22" ry="19" fill="#c8975e"/><ellipse cx="25" cy="24" rx="22" ry="19" fill="#e3b779" stroke="#ac7f52" stroke-width="2"/><path d="M14 15l5 2-1 5-5-1zm17-2 5 3-3 4-4-2zm-8 14 4-1 2 5-4 2zm12 3 4-2 2 4-3 3zm-24-1 4 2-2 4-4-2z" fill="#88604a"/></symbol>
+    <symbol id="bun" viewBox="0 0 70 50"><path d="M4 37q-2-31 30-32 31 0 33 32l-8 8H13Z" fill="#dfa46b" stroke="#aa7650" stroke-width="2"/><path d="M17 20l9 9m8-13 8 10m8-8 6 8" stroke="#f6d391" stroke-width="5" stroke-linecap="round"/></symbol>
+  </defs>
+  <path fill="#f3e9cf" d="M0 0h1000v550H0z"/>
+  <path fill="url(#wall)" d="M0 0h1000v330H0z"/>
+  <path d="M0 320h1000v230H0Z" fill="url(#tile)"/>
+  <path d="M0 300h1000v28H0Z" fill="#91aaa0"/><path d="M0 312h1000" stroke="#728d81" stroke-width="4"/>
+  <path d="M0 0h1000v19H0Z" fill="#dfb589"/><path d="M0 19h1000" stroke="#c69971" stroke-width="4"/>
+  <path d="M20 0h24v313H20ZM955 0h24v313h-24Z" fill="#cfa67f"/><path d="M29 20v274m936-274v274" stroke="#e7c6a0" stroke-width="3"/>
+  <!-- Sunlit bakery window, looking out onto the town. -->
+  <g stroke="#8c8d6f" stroke-width="4" stroke-linejoin="round">
+    <path d="M79 205V100q0-69 80-69t80 69v105Z" fill="#d6e6d1"/>
+    <path d="M89 200v-95q0-61 70-61t70 61v95Z" fill="#c3ded9" stroke="none"/>
+    <path d="M89 164q30-35 66-5 40-33 74 0v41H89Z" fill="#a9c9a3" stroke="none"/>
+    <path d="M96 90q17-12 31 0 8-23 24-14 11 1 13 14Z" fill="#f5f3da" stroke="none"/>
+    <path d="M182 171v-48m-1 24-13-18m15 15 17-14" stroke="#8b9f75" stroke-width="5"/><path d="M158 128q-9-19 11-28-1-20 16-20 19-2 19 21 22 2 14 23-5 20-30 9-13 13-30-5" fill="#9abb8c" stroke="none"/>
+    <path d="M159 36v168M81 109h156" stroke="#e7dec0" stroke-width="6"/>
+    <path d="M70 206h178v13H70Z" fill="#c6ae8a"/><path d="M76 53q14 0 26-9v143q-12-8-26-7Z" fill="#d89982" stroke="none"/><path d="M216 44q12 8 26 9v127q-15-1-26 7Z" fill="#d89982" stroke="none"/>
+    <path d="M78 171h27m111 0h26" stroke="#b87262" stroke-width="4"/>
+  </g>
+  <g stroke="#79816c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M105 210h34l-5 24h-23Z" fill="#c88f70"/><path d="M121 210v-29m0 17q-21 0-18-13 17-4 18 13m0-9q18-2 15-14-15 0-15 14" fill="#8bab7b"/><path d="M190 210h35l-5 24h-25Z" fill="#dfc691"/><path d="M207 210v-17m0 9q-15-2-11-11 10-1 11 11m0-7q14-2 10-10-9-2-10 10" fill="#8bab7b"/><circle cx="208" cy="183" r="8" fill="#e5a583" stroke="none"/><circle cx="207" cy="183" r="3.5" fill="#f5d28b" stroke="none"/></g>
+  <!-- Ben's favorite bread print. -->
+  <path d="M296 50h83v99h-83Z" fill="#d2aa7e" stroke="#997956" stroke-width="3"/><path d="M304 58h67v83h-67Z" fill="#fff1cc"/>
+  <g transform="rotate(-20 336 103)" stroke-linecap="round"><rect x="321" y="72" width="31" height="60" rx="15" fill="#dea772" stroke="#b88358" stroke-width="2"/><path d="M330 83l12 5m-12 8 12 5m-12 8 12 5" stroke="#f6d491" stroke-width="5"/></g>
+  <circle cx="425" cy="72" r="31" fill="#cfb38a" stroke="#8d8266" stroke-width="3"/><circle cx="425" cy="72" r="25" fill="#fff5d9"/><path d="M425 52v20l12 8" stroke="#758478" stroke-width="3" stroke-linecap="round"/><path d="M425 50v4m0 37v4m-21-23h4m34 0h4" stroke="#bdad86" stroke-width="2"/>
+  <!-- Recipe pinned beside the shelves. -->
+  <g transform="rotate(5 511 156)"><path d="M472 111h81v108h-81Z" fill="#d1bda0" opacity=".35"/><path d="M468 105h81v108h-81Z" fill="#fff8dc" stroke="#c3a580" stroke-width="2"/><path d="M483 124h49m-49 11h32" stroke="#a49171" stroke-width="3" stroke-linecap="round"/><path d="M482 153h39m-39 13h49m-49 13h39m-39 13h46" stroke="#c1ad88" stroke-width="2.5" stroke-linecap="round"/><circle cx="508" cy="108" r="4" fill="#cb8064"/><path d="M529 146l-5 10 11 2" fill="#d6ae6e" stroke="#a49171" stroke-width="1.5"/></g>
+  <!-- Bread display and ingredient jars. -->
+  <g stroke="#9b7f5e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M596 133h198v13H596Z" fill="#d7ad7e"/><path d="M608 146v10h17v-10m140 0v10h16v-10" fill="#b58c67"/>
+    <path d="M615 128V88h35v40Z" fill="#c7dcd0"/><path d="M611 86h42v8h-42Z" fill="#acb5a0"/><path d="M620 107h25v14h-25Z" fill="#efe3be" stroke-width="1.5"/>
+    <path d="M665 129V93h37v36Z" fill="#dcc997"/><path d="M661 89h45v9h-45Z" fill="#c18b70"/><path d="M670 109h27v14h-27Z" fill="#f2e8cc" stroke-width="1.5"/>
+    <path d="M717 129V87h35v42Z" fill="#e1d7b4"/><path d="M713 84h43v9h-43Z" fill="#99aca0"/><path d="M722 108h26v14h-26Z" fill="#fff0cd" stroke-width="1.5"/>
+    <path d="M596 210h198v13H596Z" fill="#d7ad7e"/><path d="M609 223v11h17v-11m139 0v11h16v-11" fill="#b58c67"/>
+    <path d="M616 202h159l-4 7H620Z" fill="#a8b5a0"/>
+  </g>
+  <use href="#bun" x="621" y="165" width="62" height="44"/><use href="#bun" x="669" y="165" width="62" height="44"/><use href="#bun" x="720" y="165" width="59" height="42"/>
+  <!-- Rounded sage-green oven. -->
+  <g stroke="#708477" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M831 205h115v133H831Z" fill="#b8c7aa"/><path d="M831 205l12-11h94l9 11Z" fill="#d0d7b6"/><path d="M831 233h115" stroke="#90a68c"/>
+    <circle cx="849" cy="220" r="5" fill="#f0e6c5"/><circle cx="869" cy="220" r="5" fill="#f0e6c5"/><circle cx="924" cy="220" r="5" fill="#f0e6c5"/>
+    <path d="M848 249h82v61h-82Z" fill="#617e73"/><path d="M854 255h70v48h-70Z" fill="#b1baa0" stroke-width="2"/>
+    <path d="M861 247h56" stroke="#e6e1bc" stroke-width="5"/><path d="M836 338v11m104-11v11" stroke-width="6"/>
+    <path d="M857 289h60" stroke="#d8c48f" stroke-width="3"/><path d="M867 293q1-18 16-18 15 0 17 18" fill="#cfaa73" stroke="#9a855c" stroke-width="2"/>
+    <path d="M901 293q1-15 12-15" stroke="#d6b27c" stroke-width="8"/>
+  </g>
+  <path d="M858 176q-10-10-1-20m21 23q11-11 2-23m24 20q-8-9 0-17" stroke="#d8cdb0" stroke-width="4" stroke-linecap="round"/>
+  <g stroke="#9b8569" stroke-width="2.5"><path d="M85 242h133v74H85Z" fill="#d8bf97"/><path d="M85 274h133"/><path d="M111 258h27m34 0h22m-71 32h61" stroke-linecap="round"/><path d="M88 316v25m125-25v25" stroke-width="5"/></g>
+  <!-- Ben's counter, with warm wood and a tiled top. -->
+  <ellipse cx="484" cy="474" rx="380" ry="32" fill="#ab9578" opacity=".2"/>
+  <path d="M136 303h625l102 47H94Z" fill="#f5e1b7" stroke="#aa8b68" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M95 350h767v15H95Z" fill="#dfbb87" stroke="#a58562" stroke-width="3"/>
+  <path d="M105 365h744v95H105Z" fill="#d4a577" stroke="#a58562" stroke-width="3"/>
+  <path d="M109 370h735v10H109Z" fill="#e0b98a"/><path d="M848 363l17-9v99l-17 9Z" fill="#be8c62" stroke="#a58562" stroke-width="3"/>
+  <path d="M137 391h188v51H137Zm215 0h237v51H352Zm264 0h200v51H616Z" fill="#ddb58a" stroke="#c29168" stroke-width="2.5"/>
+  <path d="M117 458h721v10H117Z" fill="#be8f66"/><path d="M112 467v13m724-13v13" stroke="#9e7e5d" stroke-width="8" stroke-linecap="round"/>
+  <path d="M146 304l-6 39m82-39-4 39m81-39-2 39m81-39v39m78-39 2 39m77-39 4 39m75-39 6 39m73-39 8 39m67-39 12 39m-629-23h707" stroke="#e4cba5" stroke-width="2"/>
+  <!-- Missing cookies leave three very interesting trays. -->
+  <g stroke="#82938a" stroke-width="2.5" stroke-linejoin="round"><path d="M314 283h114l22 28H298Z" fill="#a7b5a5"/><path d="M298 311h152v7H298Z" fill="#91a494"/><path d="M321 288h101l13 19H307Z" fill="#e6dcc1" stroke="none"/><path d="M458 306h137l29 32H438Z" fill="#a7b5a5"/><path d="M438 338h186v7H438Z" fill="#91a494"/><path d="M464 312h125l21 20H452Z" fill="#e6dcc1" stroke="none"/></g>
+  <use href="#cookie" x="314" y="281" width="31" height="26"/><use href="#cookie" x="347" y="281" width="31" height="26"/><use href="#cookie" x="380" y="281" width="31" height="26"/>
+  <use href="#cookie" x="457" y="309" width="35" height="28"/><use href="#cookie" x="497" y="309" width="35" height="28"/><use href="#cookie" x="538" y="309" width="35" height="28"/>
+  <path d="M578 324l3-4 3 4m-7 6h3m12-7h3M416 302h4m-6-6h2" stroke="#be9567" stroke-width="2" stroke-linecap="round"/>
+  <!-- A crinkly flour bag on the counter. -->
+  <g stroke="#9f8b69" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"><path d="M198 246l-5 62q-3 16 40 17 41 0 38-18l-6-61Z" fill="#eee4c4"/><path d="M197 244l2-13q25 9 65 0l2 13-18 6-31-1Z" fill="#d7c8a2"/><path d="M202 236q20 9 54 1"/><path d="M210 268h47v38h-47Z" fill="#bdc6a4" stroke="none"/><path d="M227 293v-13m0 6-6-6m6 2 6-8m-6 16-6-5m6 3 6-5" stroke="#75876a" stroke-width="2"/><path d="M199 300l9-5m57 13-7-6" stroke="#c5b48b" stroke-width="2"/></g>
+  <path d="M272 322q11-8 25 0l-3 3h-24Z" fill="#f6ecd2"/>
+  <!-- Measuring jug and Professor Hamster's experiment. -->
+  <g stroke="#7d9384" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M659 258h55v50q-2 17-29 17-27-1-26-17Z" fill="#d5e7d6" fill-opacity=".75"/><path d="M659 258l-8-7h21m43 6q29-2 28 25-1 20-28 19"/><path d="M665 289h43v20q-2 10-22 10-20-1-21-10Z" fill="#f3e8b8" stroke="none"/><path d="M696 267h14m-9 9h9m-14 9h14m-9 9h9m-14 9h14" stroke-width="2"/>
+    <path d="M765 268v-19h16v19l21 38q5 14-27 14-31 0-26-14Z" fill="#c4dcd0"/><path d="M751 303h46l4 9q-5 8-26 7-24 0-26-7Z" fill="#9bbea4" stroke="none"/><path d="M762 248h22" stroke-width="4"/><circle cx="771" cy="300" r="4" fill="#e8efca" stroke="none"/><circle cx="780" cy="290" r="2.5" fill="#e8efca" stroke="none"/>
+  </g>
+  <!-- The professor peeks over his experimental corner. -->
+  <g stroke="#786f59" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M749 250q1-26 22-29 22 2 24 29" fill="#fff5df"/><circle cx="755" cy="203" r="12" fill="#d0a478"/><circle cx="787" cy="203" r="12" fill="#d0a478"/><circle cx="755" cy="203" r="6" fill="#e2b7a0" stroke="none"/><circle cx="787" cy="203" r="6" fill="#e2b7a0" stroke="none"/><path d="M748 216q0-24 23-24 24 0 24 24-1 21-24 24-23-3-23-24" fill="#d9b483"/><circle cx="760" cy="214" r="9" fill="#f5eccf"/><circle cx="782" cy="214" r="9" fill="#f5eccf"/><path d="M769 213h4"/><circle cx="761" cy="214" r="2" fill="#625f50" stroke="none"/><circle cx="781" cy="214" r="2" fill="#625f50" stroke="none"/><path d="M767 226l4-3 4 3-4 4Z" fill="#b78663" stroke="none"/><path d="M766 232q5 5 10 0" fill="none"/><path d="M768 194l-2-7 8 6" fill="#d9b483"/></g>
+  <!-- A little stool and detective footprints lead into the scene. -->
+  <g stroke="#9f825e" stroke-width="3" stroke-linecap="round"><path d="M274 438l-8 62m45-62 8 62m-45-22h38"/><ellipse cx="292" cy="436" rx="34" ry="10" fill="#d5b17e"/><path d="M257 435v7q36 18 70 0v-7" fill="#c09a6c"/></g>
+  <path d="M687 496l4-6 4 6m17 10 4-6 4 6m17 10 4-6 4 6" stroke="#b49872" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M548 409q10-25 30-11 8-23 29-9 18 10 4 27l-28 21-28-21Z" fill="#efcd95" stroke="#b38a61" stroke-width="2"/><path d="M571 405l10 11 14-20" stroke="#bd9766" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Quiet, warm light from the ceiling. -->
+  <path d="M564 0v44m301-44v39" stroke="#988365" stroke-width="4"/>
+  <path d="M564 39q-30 0-39 29h78q-9-29-39-29Z" fill="#cad0ae" stroke="#7e8d74" stroke-width="3"/><ellipse cx="564" cy="68" rx="39" ry="7" fill="#f2dfae" stroke="#7e8d74" stroke-width="2"/>
+  <path d="M865 35q-23 0-31 23h63q-7-23-32-23Z" fill="#cad0ae" stroke="#7e8d74" stroke-width="3"/><ellipse cx="865" cy="58" rx="31" ry="6" fill="#f2dfae" stroke="#7e8d74" stroke-width="2"/>
+</svg>

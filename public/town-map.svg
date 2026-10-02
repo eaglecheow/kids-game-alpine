@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" fill="none">
+  <defs>
+    <linearGradient id="lawn" x2="0" y2="1"><stop stop-color="#e4eed8"/><stop offset="1" stop-color="#cee3ca"/></linearGradient>
+    <linearGradient id="water" x2="1" y2="1"><stop stop-color="#b8dedc"/><stop offset="1" stop-color="#83babc"/></linearGradient>
+    <pattern id="grass" width="80" height="73" patternUnits="userSpaceOnUse"><path d="M10 19l3-4 3 4m38 31 3-5 3 5" stroke="#aecba3" stroke-width="2" stroke-linecap="round" opacity=".48"/><circle cx="39" cy="10" r="1.5" fill="#b4ceab"/><circle cx="71" cy="64" r="1.5" fill="#b4ceab"/></pattern>
+    <symbol id="tree" viewBox="0 0 100 130"><ellipse cx="51" cy="119" rx="38" ry="9" fill="#608d71" opacity=".16"/><path d="M45 75l-3 43q8 9 17 0l-5-45" fill="#c39a70" stroke="#62795c" stroke-width="2.5"/><path d="M49 98L34 78m18 15 15-15" stroke="#987b59" stroke-width="3"/><path d="M23 81C-1 76 5 44 25 41 22 12 57 3 69 25 94 24 102 53 84 68 86 91 59 101 45 85 36 91 26 87 23 81Z" fill="#8db587" stroke="#658b69" stroke-width="2.5"/><path d="M26 44c-9 8-10 18-3 24m30-39q15-7 23 5m-30 36q10 9 24 1" stroke="#b2cda2" stroke-width="4" stroke-linecap="round"/><path d="M15 76q16 21 37 7 23 14 37-11" fill="#79a477" opacity=".6"/></symbol>
+    <symbol id="pine" viewBox="0 0 80 130"><ellipse cx="40" cy="120" rx="28" ry="7" fill="#608d71" opacity=".15"/><path d="M35 93v27h11V93" fill="#b7966e"/><path d="M40 6L16 48h12L9 81h13L3 107q37 12 74 0L58 81h13L52 48h12Z" fill="#6c9a86" stroke="#537967" stroke-width="2.5" stroke-linejoin="round"/><path d="M40 22v66m0-43L29 53m11 9 14 9m-14 7-16 9" stroke="#8bb09a" stroke-width="3" stroke-linecap="round"/></symbol>
+    <symbol id="bush" viewBox="0 0 60 40"><path d="M5 35C-4 20 12 11 20 17 22-4 48-2 48 18 62 11 66 34 54 37Z" fill="#8faf7e" stroke="#6d946c" stroke-width="2"/><path d="M25 18q5-5 11-2" stroke="#b4c99b" stroke-width="3" stroke-linecap="round"/></symbol>
+    <symbol id="flowers" viewBox="0 0 50 38"><path d="M13 31v-9m22 11V16" stroke="#699469" stroke-width="2.5" stroke-linecap="round"/><path d="M13 26l-8-4m30 5 8-6" stroke="#699469" stroke-width="2.5" stroke-linecap="round"/><g fill="#e9aa83"><circle cx="13" cy="14" r="5"/><circle cx="7" cy="19" r="5"/><circle cx="19" cy="19" r="5"/><circle cx="13" cy="23" r="5"/></g><circle cx="13" cy="19" r="3.5" fill="#f9df96"/><g fill="#f1d683"><circle cx="35" cy="6" r="5"/><circle cx="29" cy="11" r="5"/><circle cx="41" cy="11" r="5"/><circle cx="35" cy="15" r="5"/></g><circle cx="35" cy="11" r="3" fill="#c68f5f"/></symbol>
+    <symbol id="bench" viewBox="0 0 80 50"><ellipse cx="41" cy="46" rx="37" ry="4" fill="#6a9275" opacity=".16"/><path d="M17 25v19m46-19v19" stroke="#5b746b" stroke-width="4"/><path d="M9 28h62v8H9zM12 7h56v8H12zm0 13h56v6H12z" fill="#cda87b" stroke="#9c835e" stroke-width="2"/><path d="M17 5v22m45-22v22" stroke="#5b746b" stroke-width="3"/></symbol>
+    <symbol id="lamp" viewBox="0 0 30 80"><ellipse cx="15" cy="77" rx="12" ry="3" fill="#5d8870" opacity=".16"/><path d="M15 20v54m-5 1h10M9 24h12l3-18H6Z" stroke="#617b70" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 8h12l-2 13h-8Z" fill="#f6e6ac"/><path d="M6 5h18l-9-4Z" fill="#617b70"/></symbol>
+  </defs>
+  <path fill="url(#lawn)" d="M0 0h1200v620H0z"/>
+  <path fill="url(#grass)" d="M0 0h1200v620H0z"/>
+  <path d="M-60 50Q-9-21 58 33 130-17 207 42 274-5 355 43 443-20 514 27 567-8 627 34 728-17 788 38 843 1 912 38 1009-15 1080 40 1155-16 1266 33V0H-60Z" fill="#c1d7bc"/>
+  <path d="M-5 4q61 32 114 13T245 9q46 21 87 8M720 9q58 23 105 11T953 7q57 24 124 9" stroke="#edf2de" stroke-width="17" stroke-linecap="round" opacity=".7"/>
+  <path d="M-60 295C131 265 181 282 271 294s172 96 303 67 183-80 296-59 100 86 197 96 126 21 194 68" stroke="#b8cfae" stroke-width="73" stroke-linecap="round" opacity=".5"/>
+  <path d="M-60 290C131 260 181 277 271 289s172 96 303 67 183-80 296-59 100 86 197 96 126 21 194 68" stroke="#f3ead1" stroke-width="62" stroke-linecap="round"/>
+  <path d="M166 287Q183 400 284 531 319 585 417 630M594 350q-1-59 0-95M296 287q-47-83-17-147M850 302q22-77 45-144M953 350q-35 80-43 151" stroke="#b8cfae" stroke-width="44" stroke-linecap="round" opacity=".5"/>
+  <path d="M166 283Q183 396 284 527 319 581 417 626M594 346q-1-59 0-95M296 283q-47-83-17-147M850 298q22-77 45-144M953 346q-35 80-43 151" stroke="#f3ead1" stroke-width="35" stroke-linecap="round"/>
+  <path d="M1160 173C1087 257 1156 328 1111 405c-39 63-124 71-113 147s-43 95-78 127" stroke="#9ebca1" stroke-width="93" stroke-linecap="round" opacity=".45"/>
+  <path d="M1165 174C1092 258 1161 329 1116 406c-39 63-124 71-113 147s-43 95-78 127" stroke="url(#water)" stroke-width="77" stroke-linecap="round"/>
+  <path d="M1152 213l-13 16m-13 67 15-13m-9 79-13 14m-62 96-15 7m-24 68 4 20m-39 78-14 15" stroke="#d4eeeb" stroke-width="5" stroke-linecap="round"/>
+  <path d="M1099 385l66 25-11 34-66-26Z" fill="#d4b48b" stroke="#9a896a" stroke-width="3"/>
+  <path d="M1106 389l-10 27m21-22-10 27m21-22-10 26m21-21-10 26m21-22-10 27M1094 379l67 25m-77 21 67 25" stroke="#9a896a" stroke-width="3"/>
+  <path d="M1086 376v16m21-8v16m34-5v17m21-9v17m-81 3v17m20-9v17m34-6v17m20-9v17" stroke="#8d8168" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="580" cy="350" rx="143" ry="21" fill="#648b70" opacity=".16"/>
+  <ellipse cx="265" cy="228" rx="108" ry="15" fill="#648b70" opacity=".14"/>
+  <ellipse cx="229" cy="489" rx="107" ry="18" fill="#648b70" opacity=".15"/>
+  <ellipse cx="917" cy="492" rx="104" ry="18" fill="#648b70" opacity=".14"/>
+  <!-- The village library. -->
+  <g stroke="#657461" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M181 138h166v82H181Z" fill="#edd296"/><path d="M326 133l22 10v76l-22 5Z" fill="#d8ba81"/>
+    <path d="M162 142l94-66 98 66Z" fill="#a4ad83"/><path d="M256 76l23-8 94 66-19 8Z" fill="#899875"/>
+    <path d="M166 142h186v10H166Z" fill="#b3ba94"/>
+    <path d="M186 154h11v59h-11m115-59h11v59h-11" fill="#fae5b2" stroke-width="2"/>
+    <path d="M246 182q19-21 38 0v38h-38Z" fill="#718f85"/><path d="M265 177v43" stroke="#4c6e67" stroke-width="2"/><circle cx="259" cy="201" r="2" fill="#ecd38b" stroke="none"/>
+    <path d="M207 163h25v33h-25Zm88 0h25v33h-25Z" fill="#bad4cc"/><path d="M219 163v33m-12-17h25m75-16v33m-12-17h25" stroke="#fcf0d2" stroke-width="3"/>
+    <path d="M182 214h147v8H182Z" fill="#f6e4b8"/><path d="M236 222h57l7 7h-69Z" fill="#c7be9b" stroke-width="2"/>
+    <path d="M251 119q10-4 18 3 7-7 18-3v19q-10-4-18 3-8-7-18-3Z" fill="#fff4ca"/><path d="M269 123v17" stroke-width="2"/><path d="M256 127h8m11 0h7m-26 6h7m12 0h7" stroke-width="1.5"/>
+  </g>
+  <use href="#bush" x="156" y="191" width="48" height="32"/><use href="#flowers" x="178" y="211" width="32" height="25"/>
+  <use href="#tree" x="343" y="116" width="81" height="106"/><use href="#pine" x="122" y="89" width="66" height="107"/>
+  <!-- Bakery, the heart of Tiny Town. -->
+  <g stroke="#775e4c" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M480 205h207v127H480Z" fill="#f1d4a7"/>
+    <path d="M668 205l35-17v141l-35 9Z" fill="#dfbc95"/>
+    <path d="M462 203l41-93h173l29 93Z" fill="#cd7860"/>
+    <path d="M676 110l31 13 23 81h-25Z" fill="#b96354"/>
+    <path d="M475 175h216m-207-22h198m-187-21h180" stroke="#e29877" stroke-width="2.5"/>
+    <path d="M464 204h241v12H464Z" fill="#e59b78"/>
+    <path d="M636 120v-48h31v55Z" fill="#c38369"/><path d="M631 69h41v10h-41Z" fill="#e3ba8d"/>
+    <path d="M648 54q-11-11-1-23m14 27q13-8 7-18" stroke="#fff9e9" stroke-width="7" opacity=".7"/>
+    <path d="M546 194v-43q37-24 75 0v43Z" fill="#f7e4bd"/>
+    <path d="M556 178q7-19 29-20 23 0 25 17v10h-54Z" fill="#ce9760" stroke-width="2.5"/>
+    <path d="M567 166l6 10m11-14 4 11m10-8 4 8" stroke="#f6db99" stroke-width="4"/>
+    <path d="M493 232h75v63h-75Z" fill="#bad7cd"/>
+    <path d="M583 226h61v106h-61Z" fill="#749c92"/><path d="M592 237h43v58h-43Z" fill="#c4dbcf" stroke="#f1dab2"/>
+    <path d="M494 273h73m-49-40v38m25-38v38" stroke="#f9e5c1" stroke-width="4"/>
+    <path d="M508 282q0-9 11-9t11 9Zm27 0q0-9 11-9t11 9Z" fill="#d4a46a" stroke-width="2"/>
+    <path d="M487 293h86v9h-86Z" fill="#c49270"/><circle cx="634" cy="308" r="3" fill="#efd68a" stroke="none"/>
+    <path d="M476 227l18-27h151l13 27Z" fill="#fff0cc"/>
+    <path d="M494 200h22l-10 27h-25Zm44 0h22l-3 27h-26Zm44 0h22l4 27h-26Zm44 0h19l13 27h-25Z" fill="#d98270" stroke="none"/>
+    <path d="M476 227v9q13 12 26 0 13 12 26 0 13 12 26 0 13 12 26 0 13 12 26 0 13 12 26 0 13 12 26 0v-9Z" fill="#fff0cc" stroke-width="2.5"/>
+    <path d="M480 228h26v9q-13 10-26-1Zm51 0h25v9q-13 10-25-1Zm51 0h25v9q-13 10-25-1Zm51 0h23v9q-11 10-23-1Z" fill="#d98270" stroke="none"/>
+    <path d="M585 333h60l8 9h-74Z" fill="#c4b89a" stroke-width="2"/>
+    <path d="M650 301h37v33h-37Z" fill="#c79873" stroke-width="2.5"/><path d="M649 300q2-13 12-16 1-15 12-12 8 1 8 17 12 1 11 13" fill="#97b084" stroke-width="2.5"/>
+    <path d="M457 296h22l-3 35h-16Z" fill="#d8a984"/><path d="M457 298q-9-16 5-18 3-12 12-9 13 3 6 27" fill="#91ae80" stroke-width="2.5"/>
+  </g>
+  <path d="M721 259h20v43h-20" fill="#e5c58e" stroke="#8a795c" stroke-width="3"/><path d="M720 259q11-16 22 0" fill="#ecd9af" stroke="#8a795c" stroke-width="3"/><path d="M726 269h10m-10 7h10m-10 7h8" stroke="#b18b62" stroke-width="2" stroke-linecap="round"/>
+  <!-- A blue-roofed detective clubhouse. -->
+  <g stroke="#526f6a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M154 406h153v78H154Z" fill="#a1c5ae"/><path d="M297 401l24 13v70l-24 7Z" fill="#86afa0"/>
+    <path d="M137 408l91-72 100 72Z" fill="#648b9a"/><path d="M228 336l21-8 102 70-23 10Z" fill="#507380"/>
+    <path d="M156 394l69-52 76 52" stroke="#94b6b6" stroke-width="2"/>
+    <path d="M148 406h179v10H148Z" fill="#83a8ae"/>
+    <path d="M228 451q0-20 21-20t21 20v34h-42Z" fill="#668b7c"/><path d="M249 432v53" stroke="#4c6f63" stroke-width="2"/><circle cx="257" cy="464" r="2.5" fill="#f5d78e" stroke="none"/>
+    <path d="M171 432h38v33h-38Zm107 0h23v33h-23Z" fill="#d9e8ce"/><path d="M190 432v33m-19-17h38m80-16v33m-11-17h23" stroke="#eaf0d8" stroke-width="4"/>
+    <path d="M228 377l9-3 8 5v10l-8 9-9-9Z" fill="#efcb85" stroke-width="2"/><path d="M233 387l3 3 6-9" stroke="#896f4b" stroke-width="2"/>
+    <path d="M219 484h59l7 8h-73Z" fill="#b9b99a" stroke-width="2"/>
+    <path d="M150 463h67v13h-67Z" fill="#c29870"/><path d="M155 463q-8-15 5-19 5-9 12 0 10-12 19 1 11-8 21 3l-1 15Z" fill="#8ba878" stroke-width="2"/>
+    <path d="M166 452l-1-7m20 5v-9m18 13 3-10" stroke="#e8b488" stroke-width="4"/>
+    <path d="M317 412v-84" stroke-width="4"/><path d="M319 329l47 11-47 12Z" fill="#dfaa6e"/>
+  </g>
+  <!-- Science museum, with a little observatory dome. -->
+  <g stroke="#667a70" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M847 410h151v74H847Z" fill="#f1e7c9"/><path d="M994 409l20-12v89l-20 6Z" fill="#d9d2b5"/>
+    <path d="M837 413l26-55h121l31 55Z" fill="#abc0ac"/><path d="M837 411h178v12H837Z" fill="#cbd5ba"/>
+    <path d="M884 358q-1-46 42-46 43 0 43 46Z" fill="#89b0a2"/><path d="M924 312v46m-24-37q-15 20-13 37m58-35q14 17 13 35" fill="none" stroke="#b3d0b7"/>
+    <path d="M878 358h95v8h-95Z" fill="#6c9589"/>
+    <path d="M941 318l22-14 3 4-21 18" fill="#b5cbbc" stroke-width="2"/><path d="M961 303l5-3 7 9-5 4Z" fill="#d2dbc5" stroke-width="2"/>
+    <path d="M901 444q21-20 42 0v40h-42Z" fill="#8aafa3"/><path d="M922 438v46" stroke-width="2"/><path d="M905 452h34" stroke="#cce0c8" stroke-width="3"/>
+    <path d="M858 435h27v30h-27Zm101 0h27v30h-27Z" fill="#c4ddd2"/><path d="M871 435v30m-13-15h27m88-15v30m-14-15h27" stroke="#fff7dc" stroke-width="3"/>
+    <ellipse cx="923" cy="389" rx="16" ry="6" transform="rotate(40 923 389)" stroke="#7d9682" stroke-width="2"/><ellipse cx="923" cy="389" rx="16" ry="6" transform="rotate(-40 923 389)" stroke="#7d9682" stroke-width="2"/><ellipse cx="923" cy="389" rx="16" ry="6" transform="rotate(90 923 389)" stroke="#7d9682" stroke-width="2"/><circle cx="923" cy="389" r="3" fill="#dfa36a" stroke="none"/>
+    <path d="M890 484h64l9 9h-82Z" fill="#b6bc9f" stroke-width="2"/>
+  </g>
+  <!-- Park lawn, picket fence, fountain, and picnic blanket. -->
+  <ellipse cx="895" cy="194" rx="127" ry="78" fill="#bad4ad"/>
+  <ellipse cx="914" cy="185" rx="49" ry="18" fill="#8fbaa9" stroke="#7c9e87" stroke-width="3"/>
+  <ellipse cx="914" cy="181" rx="42" ry="11" fill="#b1d8c7"/><path d="M914 143v37" stroke="#7c9e87" stroke-width="10"/><ellipse cx="914" cy="147" rx="24" ry="8" fill="#bfd3b5" stroke="#7c9e87" stroke-width="3"/><path d="M913 131q-13-17-22-7m22 7q13-17 22-7m-22 7v-16" stroke="#99c5bd" stroke-width="4" stroke-linecap="round"/><circle cx="887" cy="129" r="3" fill="#99c5bd"/><circle cx="939" cy="129" r="3" fill="#99c5bd"/>
+  <path d="M789 220l69 18 30-26-65-19Z" fill="#e3bba3" stroke="#b99278" stroke-width="2"/><path d="M806 208l64 17m-48-20 14 30m4-35 14 26" stroke="#f6dbc0" stroke-width="5"/>
+  <path d="M823 208q8-13 18-5l-2 11-17-2Z" fill="#c59d6c" stroke="#8d805d" stroke-width="2"/><path d="M825 204q2-14 10-6l5 7" stroke="#8d805d" stroke-width="2"/>
+  <path d="M988 130l-2 89m17-92v93m17-84v92m16-84v93m-61-82 70 22m-70 10 70 22" stroke="#f0e5c6" stroke-width="7" stroke-linecap="round"/>
+  <use href="#bench" x="934" y="218" width="70" height="44"/>
+  <use href="#tree" x="774" y="96" width="100" height="130"/><use href="#tree" x="965" y="56" width="93" height="121"/>
+  <!-- Small details reward curious eyes. -->
+  <use href="#tree" x="32" y="48" width="104" height="136"/><use href="#tree" x="28" y="177" width="87" height="114"/><use href="#pine" x="81" y="160" width="68" height="111"/>
+  <use href="#tree" x="391" y="38" width="106" height="138"/><use href="#pine" x="493" y="12" width="75" height="121"/><use href="#tree" x="677" y="35" width="95" height="124"/>
+  <use href="#pine" x="1070" y="9" width="91" height="148"/><use href="#tree" x="1118" y="51" width="90" height="117"/>
+  <use href="#tree" x="1116" y="467" width="93" height="121"/><use href="#tree" x="1033" y="486" width="74" height="96"/>
+  <use href="#tree" x="13" y="363" width="125" height="163"/><use href="#pine" x="65" y="496" width="73" height="119"/><use href="#tree" x="117" y="527" width="101" height="131"/>
+  <use href="#tree" x="400" y="409" width="100" height="130"/><use href="#tree" x="472" y="459" width="81" height="106"/><use href="#pine" x="756" y="413" width="70" height="114"/>
+  <use href="#pine" x="665" y="501" width="89" height="145"/><use href="#tree" x="763" y="530" width="81" height="106"/>
+  <use href="#bush" x="52" y="312" width="64" height="43"/><use href="#bush" x="314" y="474" width="50" height="33"/><use href="#bush" x="813" y="469" width="48" height="32"/>
+  <use href="#bush" x="691" y="363" width="59" height="39"/><use href="#bush" x="346" y="249" width="58" height="39"/><use href="#bush" x="1055" y="186" width="58" height="39"/>
+  <use href="#flowers" x="121" y="274" width="42" height="32"/><use href="#flowers" x="400" y="292" width="45" height="35"/><use href="#flowers" x="346" y="524" width="46" height="35"/>
+  <use href="#flowers" x="625" y="409" width="48" height="37"/><use href="#flowers" x="774" y="297" width="38" height="29"/><use href="#flowers" x="987" y="258" width="37" height="28"/>
+  <use href="#flowers" x="853" y="564" width="48" height="37"/><use href="#flowers" x="561" y="563" width="44" height="34"/><use href="#flowers" x="1117" y="566" width="35" height="27"/>
+  <use href="#lamp" x="356" y="173" width="24" height="64"/><use href="#lamp" x="423" y="327" width="25" height="67"/><use href="#lamp" x="750" y="246" width="25" height="67"/>
+  <use href="#lamp" x="358" y="427" width="25" height="67"/><use href="#lamp" x="826" y="365" width="25" height="67"/>
+  <use href="#bench" x="639" y="449" width="73" height="46"/><use href="#bench" x="338" y="73" width="62" height="39"/>
+  <g fill="#b3c79f"><ellipse cx="324" cy="362" rx="17" ry="5"/><ellipse cx="584" cy="484" rx="15" ry="5"/><ellipse cx="1033" cy="319" rx="13" ry="4"/><ellipse cx="694" cy="203" rx="12" ry="4"/></g>
+  <g stroke="#98b78b" stroke-width="2" stroke-linecap="round"><path d="M292 377l3-6 3 6m5 0 3-6 3 6M586 444l3-6 3 6m5 0 3-6 3 6M1078 561l3-6 3 6m5 0 3-6 3 6M738 100l3-6 3 6m5 0 3-6 3 6"/></g>
+  <g fill="#f8efce" stroke="#b5af89" stroke-width="1.5"><path d="M313 323l9 2-2 5-10-2zM334 329l7 3-3 5-8-3zM667 320l9-2 2 5-10 3zM972 403l9 3-2 5-9-2z"/></g>
+  <!-- Pip's tiny footprints, and two neighborhood birds. -->
+  <path d="M486 374l3-5 3 5m14 1 3-5 3 5m14 1 3-5 3 5" stroke="#b2a887" stroke-width="2" stroke-linecap="round"/>
+  <path d="M438 199q5-6 10 0 5-6 10 0m303-125q5-6 10 0 5-6 10 0" stroke="#779789" stroke-width="2.5" stroke-linecap="round"/>
+  <g transform="translate(590 479)"><ellipse cx="14" cy="24" rx="17" ry="4" fill="#88a883" opacity=".25"/><path d="M6 17q-4-15 6-17 13-1 14 15-2 10-12 8L2 24Z" fill="#8da7a7" stroke="#607b71" stroke-width="2"/><path d="M24 7l7 3-7 4" fill="#d9b673"/><circle cx="20" cy="7" r="1.5" fill="#465e56"/><path d="M9 24v3m9-3v3" stroke="#a58e63" stroke-width="2"/></g>
+</svg>
