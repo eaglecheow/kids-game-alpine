@@ -115,7 +115,7 @@ Persistent player data is separate from temporary page and modal state. The acti
 - `choice`: evidence options and a zero-based correct option index.
 - `route`: a small fixed grid with a start, destination, obstacles, and ordered checkpoints. Select adjacent cells, then undo or reset. Every valid path passes, without a shortest-path requirement.
 - `sort`: objects with illustrated attributes and three labelled rule trays. Select an object and assign a tray; revise any placement before checking. Every object must match its tray; object order is irrelevant and a tray can remain empty.
-- `tiles`: a rectangular picture board with unique fragments. Select a fragment and slot, place or remove it, and rotate where enabled. All fragments must occupy their matching slots at accepted quarter-turn orientations.
+- `tiles`: a rectangular picture board with unique fragments. Drag pieces from the tray into highlighted squares, swap board pieces, or drag them back to the tray. Select a piece and use Rotate where enabled. Tap/keyboard controls also work: select a piece, activate an empty square to place it, or use Return to clear its square. All fragments must occupy their matching slots at accepted quarter-turn orientations.
 
 Every puzzle includes a hint and character-driven success text. Incorrect attempts show supportive feedback, preserve the current arrangement, and allow another try. Number validation compares exact numeric values; sequence validation checks every card in order. Successful puzzle feedback previews the discovery; **Add discovery to notebook** saves it and reveals its lasting scene change. Park notebook observations gain their discovered facts after this commit.
 

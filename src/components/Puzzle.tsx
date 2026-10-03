@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowUp, Check, Lightbulb, Sparkles } from 'lucide-react';
 import { publicAsset } from '../assets';
 import { SequenceCards } from './SequenceCards';
+import { TilesPuzzle } from './TilesPuzzle';
 import {
   validateAnswer,
   type Puzzle as PuzzleData,
@@ -26,29 +27,6 @@ function SortPicture({ icon, picture }: { icon: string; picture?: string }) {
   );
 }
 
-function TilePicture({
-  puzzle,
-  sourceIndex,
-  turns,
-}: {
-  puzzle: Extract<PuzzleData, { type: 'tiles' }>;
-  sourceIndex: number;
-  turns: number;
-}) {
-  return (
-    <span
-      className="tile-crop"
-      aria-hidden="true"
-      style={{
-        backgroundImage: `url("${publicAsset(puzzle.image)}")`,
-        backgroundSize: `${puzzle.columns * 100}% ${puzzle.rows * 100}%`,
-        backgroundPosition: `${((sourceIndex % puzzle.columns) / (puzzle.columns - 1)) * 100}% ${(Math.floor(sourceIndex / puzzle.columns) / (puzzle.rows - 1)) * 100}%`,
-        transform: `rotate(${turns * 90}deg)`,
-      }}
-    />
-  );
-}
-
 export function Puzzle({
   puzzle,
   onSolved,
@@ -70,13 +48,6 @@ export function Puzzle({
   const [placements, setPlacements] = useState<(TilePlacement | null)[]>(() =>
     puzzle.type === 'tiles' ? Array(puzzle.rows * puzzle.columns).fill(null) : [],
   );
-  const [turns, setTurns] = useState<Record<string, number>>(() =>
-    puzzle.type === 'tiles'
-      ? Object.fromEntries(puzzle.tiles.map((tile) => [tile.id, tile.initialTurns]))
-      : {},
-  );
-  const [selectedTile, setSelectedTile] = useState<string | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const check = () => {
     const answer: PuzzleAnswer | null =
       puzzle.type === 'sequence'
@@ -350,125 +321,13 @@ export function Puzzle({
         </div>
       )}
       {puzzle.type === 'tiles' && (
-        <div className="tiles-puzzle">
-          <p className="small muted">Choose a fragment and a board square, then press Place.</p>
-          <div className="tile-palette" role="group" aria-label="Picture fragments">
-            {puzzle.tiles.map((tile) => {
-              const placed = placements.some((placement) => placement?.tileId === tile.id);
-              return (
-                <button
-                  key={tile.id}
-                  className={`tile-fragment ${selectedTile === tile.id ? 'selected' : ''}`}
-                  aria-pressed={selectedTile === tile.id}
-                  aria-label={`${tile.label}. ${tile.description}. Turned ${turns[tile.id] * 90} degrees. ${placed ? 'Placed on board' : 'Not placed'}.`}
-                  disabled={success}
-                  onClick={() => {
-                    setSelectedTile(tile.id);
-                    setFeedback('');
-                  }}
-                >
-                  <TilePicture
-                    puzzle={puzzle}
-                    sourceIndex={tile.sourceIndex}
-                    turns={turns[tile.id]}
-                  />
-                  <span>{tile.label}</span>
-                  {placed && <small>On board</small>}
-                </button>
-              );
-            })}
-          </div>
-          <div
-            className="tile-board"
-            role="group"
-            aria-label="Picture assembly board"
-            style={{ gridTemplateColumns: `repeat(${puzzle.columns}, minmax(44px, 1fr))` }}
-          >
-            {placements.map((placement, index) => {
-              const tile = puzzle.tiles.find((entry) => entry.id === placement?.tileId);
-              const label = `Row ${Math.floor(index / puzzle.columns) + 1}, column ${(index % puzzle.columns) + 1}`;
-              return (
-                <button
-                  key={index}
-                  className={`tile-slot ${selectedSlot === index ? 'selected' : ''}`}
-                  aria-pressed={selectedSlot === index}
-                  aria-label={`${label}. ${tile ? `${tile.label}, turned ${placement!.turns * 90} degrees` : 'Empty'}.`}
-                  disabled={success}
-                  onClick={() => {
-                    setSelectedSlot(index);
-                    setFeedback('');
-                  }}
-                >
-                  {tile && placement ? (
-                    <TilePicture
-                      puzzle={puzzle}
-                      sourceIndex={tile.sourceIndex}
-                      turns={placement.turns}
-                    />
-                  ) : (
-                    <span aria-hidden="true">＋</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-          <p className="small puzzle-selection" role="status">
-            {selectedTile
-              ? `${puzzle.tiles.find((tile) => tile.id === selectedTile)!.label} selected, turned ${turns[selectedTile] * 90} degrees.`
-              : 'Choose a fragment.'}{' '}
-            {selectedSlot === null
-              ? 'Choose a board square.'
-              : `Board square: row ${Math.floor(selectedSlot / puzzle.columns) + 1}, column ${(selectedSlot % puzzle.columns) + 1}.`}
-          </p>
-          <div className="puzzle-tools">
-            {puzzle.rotation && (
-              <button
-                className="button secondary"
-                disabled={success || selectedTile === null}
-                onClick={() => {
-                  const nextTurn = (turns[selectedTile!] + 1) % 4;
-                  setTurns({ ...turns, [selectedTile!]: nextTurn });
-                  setPlacements(
-                    placements.map((placement) =>
-                      placement?.tileId === selectedTile
-                        ? { ...placement, turns: nextTurn }
-                        : placement,
-                    ),
-                  );
-                  setFeedback('');
-                }}
-              >
-                Rotate selected fragment
-              </button>
-            )}
-            <button
-              className="button secondary"
-              disabled={success || selectedTile === null || selectedSlot === null}
-              onClick={() => {
-                const next = placements.map((placement) =>
-                  placement?.tileId === selectedTile ? null : placement,
-                );
-                next[selectedSlot!] = { tileId: selectedTile!, turns: turns[selectedTile!] };
-                setPlacements(next);
-                setFeedback('Fragment placed. Check its edges against the neighboring picture.');
-              }}
-            >
-              Place fragment
-            </button>
-            <button
-              className="button secondary"
-              disabled={success || selectedSlot === null || placements[selectedSlot] === null}
-              onClick={() => {
-                setPlacements(
-                  placements.map((placement, index) => (index === selectedSlot ? null : placement)),
-                );
-                setFeedback('Fragment returned to the picture pieces.');
-              }}
-            >
-              Remove from selected square
-            </button>
-          </div>
-        </div>
+        <TilesPuzzle
+          puzzle={puzzle}
+          placements={placements}
+          onChange={setPlacements}
+          disabled={success}
+          onFeedback={setFeedback}
+        />
       )}
       {hint && !success && (
         <div className="hint">
