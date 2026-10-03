@@ -12,6 +12,7 @@ import {
   LockKeyhole,
   Map,
   Music2,
+  RotateCcw,
   Search,
   Settings,
   ShieldCheck,
@@ -33,7 +34,7 @@ import {
   type Clue,
   type GameCase,
 } from './game';
-import { loadPlayer, savePlayer } from './storage';
+import { loadPlayer, resetPlayerProgress, savePlayer } from './storage';
 import { Character } from './components/Character';
 import { RoomItem } from './components/RoomItem';
 import { Modal } from './components/Modal';
@@ -47,6 +48,7 @@ type Overlay =
   | 'onboard'
   | 'welcome'
   | 'settings'
+  | 'reset-progress'
   | 'intro'
   | 'notebook'
   | 'dialogue'
@@ -217,6 +219,7 @@ export default function App() {
   const [offline, setOffline] = useState(!navigator.onLine);
   const [cached, setCached] = useState(Boolean(navigator.serviceWorker?.controller));
   const [saveError, setSaveError] = useState(false);
+  const [resetError, setResetError] = useState(false);
   const [install, setInstall] = useState<InstallPrompt | null>(null);
   const cases = casesFor(player.difficulty);
   const visibleCases =
@@ -248,6 +251,24 @@ export default function App() {
     activeCase.puzzles.every((item) => player.session?.solved.includes(item.id)) &&
     activeCase.clues.every((clue) => player.session?.clues.includes(clue.id));
   const update = (changes: Partial<Player>) => setPlayer((current) => ({ ...current, ...changes }));
+  const resetProgress = () => {
+    const freshPlayer = resetPlayerProgress(player);
+    if (!freshPlayer) {
+      setResetError(true);
+      return;
+    }
+    setPlayer(freshPlayer);
+    setMusic(false);
+    setPage('town');
+    setOverlay(null);
+    setSelectedClue(null);
+    setPuzzleId('');
+    setLastCase('missing-cookies');
+    setWasReplay(false);
+    setConclusionFeedback('');
+    setResetError(false);
+    setNotice('Your progress has been reset. Your first mystery is ready!');
+  };
   useEffect(() => {
     setSaveError(!savePlayer(player));
   }, [player]);
@@ -1165,6 +1186,54 @@ export default function App() {
             </div>
             <button className="button secondary full" onClick={() => setOverlay('onboard')}>
               Change my detective look <Sparkles size={17} />
+            </button>
+            <div className="reset-progress-section">
+              <h3>Start a fresh adventure</h3>
+              <p>Clear your mystery progress and rewards on this device.</p>
+              <button
+                className="button danger full"
+                onClick={() => {
+                  setResetError(false);
+                  setOverlay('reset-progress');
+                }}
+              >
+                <RotateCcw size={18} /> Reset all progress
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+      {overlay === 'reset-progress' && (
+        <Modal
+          label="Reset all progress?"
+          initialFocus="#keep-progress"
+          onClose={() => setOverlay('settings')}
+        >
+          <div className="reset-progress-content">
+            <h2>Reset all progress?</h2>
+            <p>
+              This clears all completed mysteries, notebook clues, stars, coins, stickers, and
+              clubhouse decorations on this device. You’ll start again with the first mystery.
+            </p>
+            <p>Your detective name, look, adventure level, and sound settings stay the same.</p>
+            <p>
+              <strong>This cannot be undone.</strong>
+            </p>
+            {resetError && (
+              <p className="reset-error" role="alert">
+                We couldn’t reset your saved adventure. Your progress is still here. Check your
+                browser’s storage settings and try again.
+              </p>
+            )}
+            <button
+              className="button secondary full"
+              id="keep-progress"
+              onClick={() => setOverlay('settings')}
+            >
+              Keep my progress
+            </button>
+            <button className="button danger full" onClick={resetProgress}>
+              <RotateCcw size={18} /> Yes, reset all progress
             </button>
           </div>
         </Modal>

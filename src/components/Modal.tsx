@@ -6,18 +6,21 @@ export function Modal({
   onClose,
   label,
   wide = false,
+  initialFocus,
 }: {
   children: ReactNode;
   onClose: () => void;
   label: string;
   wide?: boolean;
+  initialFocus?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const dialog = ref.current;
     dialog?.showModal();
+    if (initialFocus) dialog?.querySelector<HTMLElement>(initialFocus)?.focus();
     return () => dialog?.close();
-  }, []);
+  }, [initialFocus]);
   return (
     <dialog
       ref={ref}

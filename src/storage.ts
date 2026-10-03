@@ -117,3 +117,18 @@ export function savePlayer(player: Player): boolean {
     return false;
   }
 }
+
+export function resetPlayerProgress(player: Player): Player | null {
+  const reset: Player = {
+    ...getInitialPlayer(),
+    nickname: player.nickname,
+    avatar: player.avatar,
+    hat: player.hat,
+    difficulty: player.difficulty,
+    sound: player.sound,
+    music: player.music,
+    onboarded: player.onboarded,
+  };
+
+  return savePlayer(reset) ? reset : null;
+}

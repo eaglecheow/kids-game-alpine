@@ -12,7 +12,7 @@ import {
   type Difficulty,
   type PuzzleAnswer,
 } from './game';
-import { loadPlayer, SAVE_KEY, savePlayer } from './storage';
+import { loadPlayer, resetPlayerProgress, SAVE_KEY, savePlayer } from './storage';
 
 const bakeryCases = (difficulty: Difficulty) =>
   casesFor(difficulty).filter((gameCase) => gameCase.location === 'bakery');
@@ -445,6 +445,92 @@ describe('local saves', () => {
     }
   });
 
+  it.each(['junior', 'detective', 'master'] as const)(
+    'persists a fresh adventure at %s difficulty while retaining profile and settings',
+    (difficulty) => {
+      let player: Player = {
+        ...getInitialPlayer(),
+        nickname: 'Star Detective',
+        avatar: 2,
+        hat: 'bow',
+        difficulty,
+        sound: false,
+        music: true,
+        onboarded: true,
+      };
+      for (const gameCase of casesFor(difficulty).slice(0, 4)) {
+        player = completeCase(readyToFinish(gameCase, player), gameCase);
+      }
+      const purchases = decorations.filter((item) => ['lamp', 'rug'].includes(item.id));
+      player = {
+        ...player,
+        coins: player.coins - purchases.reduce((total, item) => total + item.price, 0),
+        unlocked: [...player.unlocked, ...purchases.map((item) => item.id)],
+        equipped: {
+          shelf: 'cookie-trophy',
+          wall: 'park-picnic-pennant',
+          desk: 'lamp',
+          floor: 'rug',
+        },
+      };
+      const flowers = caseById('park-flower-signs', difficulty);
+      player.session = {
+        caseId: flowers.id,
+        clues: flowers.clues.slice(0, 2).map((clue) => clue.id),
+        solved: [flowers.puzzles[0].id],
+        introSeen: true,
+      };
+      expect(canVisitPark(player)).toBe(true);
+      expect(player.stars).toBeGreaterThan(0);
+      expect(player.coins).toBeGreaterThan(0);
+      expect(player.stickers).toHaveLength(4);
+      expect(savePlayer(player)).toBe(true);
+      values.set('another-app.preference', 'keep me');
+      const original = JSON.stringify(player);
+
+      const reset = resetPlayerProgress(player);
+
+      expect(reset).toEqual({
+        ...getInitialPlayer(),
+        nickname: 'Star Detective',
+        avatar: 2,
+        hat: 'bow',
+        difficulty,
+        sound: false,
+        music: true,
+        onboarded: true,
+      });
+      expect(loadPlayer()).toEqual(reset);
+      expect(JSON.parse(values.get(SAVE_KEY)!)).toEqual(reset);
+      expect(JSON.stringify(player)).toBe(original);
+      expect(values.get('another-app.preference')).toBe('keep me');
+      expect(values.size).toBe(2);
+      expect(canPlayCase(reset!, 'missing-cookies')).toBe(true);
+      expect(canPlayCase(reset!, 'giant-cupcake')).toBe(false);
+      expect(canVisitPark(reset!)).toBe(false);
+    },
+  );
+
+  it('keeps the current adventure when the reset cannot be saved', () => {
+    const first = caseById('missing-cookies');
+    const player = completeCase(readyToFinish(first), first);
+    expect(savePlayer(player)).toBe(true);
+    const original = values.get(SAVE_KEY);
+    values.set('another-app.preference', 'keep me');
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: () => {
+        throw new Error('Storage full');
+      },
+    });
+
+    expect(resetPlayerProgress(player)).toBeNull();
+    expect(values.get(SAVE_KEY)).toBe(original);
+    expect(loadPlayer()).toEqual(player);
+    expect(values.get('another-app.preference')).toBe('keep me');
+    expect(player.completed).toEqual(['missing-cookies']);
+  });
+
   it('preserves core clues and solved IDs when a Park session changes difficulty', () => {
     const master = caseById('park-kite-tails', 'master');
     const player = readyToFinish(master, {
@@ -524,6 +610,7 @@ describe('local saves', () => {
     });
     expect(loadPlayer()).toEqual(getInitialPlayer());
     expect(savePlayer(getInitialPlayer())).toBe(false);
+    expect(resetPlayerProgress(getInitialPlayer())).toBeNull();
   });
 
   it('preserves a future-version save instead of overwriting it', () => {
@@ -531,6 +618,7 @@ describe('local saves', () => {
     values.set(SAVE_KEY, future);
     expect(loadPlayer()).toEqual(getInitialPlayer());
     expect(savePlayer(getInitialPlayer())).toBe(false);
+    expect(resetPlayerProgress(getInitialPlayer())).toBeNull();
     expect(values.get(SAVE_KEY)).toBe(future);
   });
 });

@@ -136,6 +136,8 @@ IDs are used in saved progress. Keep existing IDs stable; renaming or removing t
 
 You can leave a mystery for the map or clubhouse and resume it later. Starting another case while one is open returns to the saved mystery first, preserving discoveries. Temporary typed answers, unsubmitted card order, and open dialogs are not saved.
 
+In **Settings → Reset all progress**, confirm **Yes, reset all progress** to start again from the first mystery. This permanently clears completed cases, notebook discoveries, stars, coins, stickers, and owned/equipped clubhouse decorations on this device. Your detective nickname, look, adventure level, and audio preferences stay the same. **Keep my progress**, Close, or Escape cancels the reset. If the fresh save cannot be written, your current progress stays intact and the game shows an error.
+
 The loader supplies defaults, sanitizes invalid fields, and discards unknown clue, puzzle, case, or decoration IDs. Unversioned and version `0` saves are normalized and rewritten as version `1`. Existing Bakery saves keep their IDs, progress, currency, and equipment; Park adds content without changing the saved shape or version. No location or repair flags are stored, and route, sorting, and tile drafts are temporary. Future save versions are preserved rather than overwritten; the app signals when saving fails. To introduce version `2`, add an explicit migration in `storage.ts` and corresponding round-trip tests before changing the writer.
 
 Saves belong to that browser and origin. Clearing site storage removes them; devices and browsers do not synchronize. A nickname stays local and should be a made-up name.

@@ -1631,6 +1631,37 @@ legend {
 .settings-content > .button {
   margin-top: 20px;
 }
+.reset-progress-section {
+  border-top: 1px solid var(--line);
+  margin-top: 26px;
+  padding-top: 22px;
+}
+.reset-progress-section p {
+  margin: 8px 0 16px;
+}
+.button.danger {
+  color: #8b342b;
+  background: #fff0eb;
+  border: 1.5px solid #d49b8f;
+}
+.button.danger:hover {
+  background: #ffe3d9;
+}
+.reset-progress-content {
+  padding-top: 10px;
+}
+.reset-progress-content p {
+  margin-bottom: 16px;
+}
+.reset-progress-content > .button {
+  margin-top: 12px;
+}
+.modal .reset-error {
+  color: #8b342b;
+  background: #fff0eb;
+  border-radius: 12px;
+  padding: 14px;
+}
 .dialogue-content {
   text-align: center;
   padding-top: 6px;
