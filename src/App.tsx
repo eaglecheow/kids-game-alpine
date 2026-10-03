@@ -26,19 +26,22 @@ import {
   casesFor,
   completeCase,
   canPlayCase,
+  canVisitPark,
   decorations,
   type Player,
   type Difficulty,
   type Clue,
+  type GameCase,
 } from './game';
 import { loadPlayer, savePlayer } from './storage';
 import { Character } from './components/Character';
 import { RoomItem } from './components/RoomItem';
 import { Modal } from './components/Modal';
 import { Puzzle } from './components/Puzzle';
+import { ParkScene, ParkEvidence } from './components/ParkScene';
 import { playSound, setMusic } from './audio';
 
-type Page = 'town' | 'bakery' | 'case' | 'clubhouse' | 'files';
+type Page = 'town' | 'bakery' | 'park' | 'case' | 'clubhouse' | 'files';
 type Overlay =
   | 'onboard'
   | 'welcome'
@@ -69,6 +72,41 @@ const locations = [
   { name: 'My Clubhouse', x: 20, y: 85, locked: false, className: 'clubhouse' },
   { name: 'Science Museum', x: 79, y: 85, locked: true, className: 'museum' },
 ];
+const locationDetails = {
+  bakery: {
+    name: "Ben's Bakery",
+    scene: '/bakery-scene.svg',
+    alt: 'Inside the bakery: trays of cookies, flour, recipes, and a mysterious experiment',
+  },
+  park: {
+    name: 'Sunny Park',
+    scene: '/park-scene.svg',
+    alt: 'Sunny Park with two picnic benches, flowerbeds, and grounded display kites',
+  },
+};
+
+function CaseArt({ gameCase }: { gameCase: GameCase }) {
+  if (gameCase.location === 'park') {
+    const images: Record<string, string> = {
+      'park-wrong-bench': '/park-bench-thumb.svg',
+      'park-flower-signs': '/park-flowers-thumb.svg',
+      'park-kite-tails': '/park-kites-thumb.svg',
+    };
+    return (
+      <img
+        className="case-art park-case-art"
+        src={images[gameCase.id]}
+        alt={gameCase.description}
+      />
+    );
+  }
+  return (
+    <CookieArt
+      cupcake={gameCase.id === 'giant-cupcake'}
+      recipe={gameCase.id === 'mystery-recipe'}
+    />
+  );
+}
 
 function CookieArt({ cupcake = false, recipe = false }: { cupcake?: boolean; recipe?: boolean }) {
   return (
@@ -180,11 +218,29 @@ export default function App() {
   const [saveError, setSaveError] = useState(false);
   const [install, setInstall] = useState<InstallPrompt | null>(null);
   const cases = casesFor(player.difficulty);
+  const visibleCases =
+    page === 'bakery' || page === 'park' ? cases.filter((item) => item.location === page) : cases;
+  const caseNumber = (item: GameCase) =>
+    cases
+      .filter((candidate) => candidate.location === item.location)
+      .findIndex((candidate) => candidate.id === item.id) + 1;
+  const parkAvailable = canVisitPark(player);
+  const bakeryCompleted = cases.filter(
+    (item) => item.location === 'bakery' && player.completed.includes(item.id),
+  ).length;
   const activeCase = cases.find((item) => item.id === player.session?.caseId);
   const featuredCase =
-    activeCase ?? cases.find((item) => !player.completed.includes(item.id)) ?? cases[0];
+    activeCase ??
+    cases.find((item) => canPlayCase(player, item.id) && !player.completed.includes(item.id)) ??
+    cases[0];
   const rewardedCase = cases.find((item) => item.id === lastCase) ?? cases[0];
   const selectedPuzzle = activeCase?.puzzles.find((item) => item.id === puzzleId);
+  const currentClue =
+    activeCase?.clues.find((item) => item.id === selectedClue?.id) ?? selectedClue;
+  const clueText = (clue: Clue) =>
+    clue.discovery && player.session?.solved.includes(clue.puzzleId ?? '')
+      ? clue.discovery
+      : clue.description;
   const solvedCount = player.session?.solved.length ?? 0;
   const allReady =
     !!activeCase &&
@@ -297,7 +353,11 @@ export default function App() {
           </button>
           <nav className="main-nav" aria-label="Main navigation">
             <button
-              className={page === 'town' || page === 'bakery' || page === 'case' ? 'active' : ''}
+              className={
+                page === 'town' || page === 'bakery' || page === 'park' || page === 'case'
+                  ? 'active'
+                  : ''
+              }
               onClick={() => navigate('town')}
             >
               <Map size={18} />
@@ -398,36 +458,54 @@ export default function App() {
                     src="/town-map.svg"
                     alt="An illustrated town with a bakery, clubhouse, library, park, and science museum connected by winding paths"
                   />
-                  {locations.map((location) => (
-                    <button
-                      key={location.name}
-                      style={{ left: `${location.x}%`, top: `${location.y}%` } as CSSProperties}
-                      className={`map-location ${location.className} ${location.locked ? 'locked' : 'unlocked'}`}
-                      aria-label={
-                        location.locked ? `${location.name}, coming soon` : `Visit ${location.name}`
-                      }
-                      onClick={() =>
-                        location.locked
-                          ? setNotice(
-                              `${location.name} is coming in a future adventure. The Bakery needs you today!`,
-                            )
-                          : location.className === 'bakery'
-                            ? navigate('bakery')
-                            : openClubhouse()
-                      }
-                    >
-                      {location.locked ? (
-                        <LockKeyhole size={14} />
-                      ) : location.className === 'bakery' ? (
-                        <Search size={17} />
-                      ) : (
-                        <Home size={16} />
-                      )}
-                      <span>{location.name}</span>
-                      {!location.locked && <ArrowRight size={14} />}
-                      {location.locked && <span className="soon">SOON</span>}
-                    </button>
-                  ))}
+                  {locations.map((originalLocation) => {
+                    const location =
+                      originalLocation.className === 'park'
+                        ? { ...originalLocation, locked: !parkAvailable }
+                        : originalLocation;
+                    return (
+                      <button
+                        key={location.name}
+                        style={{ left: `${location.x}%`, top: `${location.y}%` } as CSSProperties}
+                        className={`map-location ${location.className} ${location.locked ? 'locked' : 'unlocked'}`}
+                        aria-label={
+                          location.className === 'park' && location.locked
+                            ? `Sunny Park locked. Solve the three Bakery mysteries. ${bakeryCompleted} of 3 solved`
+                            : location.locked
+                              ? `${location.name}, coming soon`
+                              : `Visit ${location.name}`
+                        }
+                        onClick={() =>
+                          location.locked
+                            ? setNotice(
+                                location.className === 'park'
+                                  ? `Solve the three Bakery mysteries to visit Sunny Park. ${bakeryCompleted} of 3 solved.`
+                                  : `${location.name} is coming in a future adventure.`,
+                              )
+                            : location.className === 'bakery'
+                              ? navigate('bakery')
+                              : location.className === 'park'
+                                ? navigate('park')
+                                : openClubhouse()
+                        }
+                      >
+                        {location.locked ? (
+                          <LockKeyhole size={14} />
+                        ) : location.className === 'bakery' || location.className === 'park' ? (
+                          <Search size={17} />
+                        ) : (
+                          <Home size={16} />
+                        )}
+                        <span>{location.name}</span>
+                        {!location.locked && <ArrowRight size={14} />}
+                        {location.locked && (
+                          <span className="soon">
+                            {location.className === 'park' ? `${bakeryCompleted}/3` : 'SOON'}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                   <div className="map-tip">
                     <span className="tip-pin" />
                     Tap a place to explore
@@ -439,7 +517,9 @@ export default function App() {
                 <div className="map-panel-footer">
                   <span>
                     <span className="status-dot" />
-                    Your adventure starts at the Bakery
+                    {parkAvailable
+                      ? 'Sunny Park is open for a picnic mystery'
+                      : 'Your adventure starts at the Bakery'}
                   </span>
                   <span>
                     <LockKeyhole size={13} /> More places to discover soon
@@ -454,16 +534,14 @@ export default function App() {
                     </span>
                     {activeCase ? 'YOUR OPEN CASE' : 'ON THE CASE BOARD'}
                     <span className="new-pill">
-                      {player.completed.length === 3 ? 'REPLAY' : 'NEW'}
+                      {player.completed.includes(featuredCase.id) ? 'REPLAY' : 'NEW'}
                     </span>
                   </div>
                   <div className="case-picture">
-                    <CookieArt
-                      cupcake={featuredCase.id === 'giant-cupcake'}
-                      recipe={featuredCase.id === 'mystery-recipe'}
-                    />
+                    <CaseArt gameCase={featuredCase} />
                     <span className="case-number">
-                      CASE {String(cases.indexOf(featuredCase) + 1).padStart(2, '0')}
+                      {locationDetails[featuredCase.location].name} · CASE{' '}
+                      {String(caseNumber(featuredCase)).padStart(2, '0')}
                     </span>
                     <span className="art-spark">✦</span>
                   </div>
@@ -484,7 +562,11 @@ export default function App() {
                       className="button primary full"
                       onClick={() => startCase(featuredCase.id)}
                     >
-                      {activeCase ? 'Pick up the clues' : "Let's investigate"}
+                      {activeCase
+                        ? 'Pick up the clues'
+                        : player.completed.includes(featuredCase.id)
+                          ? 'Replay mystery'
+                          : "Let's investigate"}
                       <ArrowRight size={19} />
                     </button>
                   </div>
@@ -511,11 +593,13 @@ export default function App() {
                 </span>
                 <div>
                   <h3>A little more curious, every day.</h3>
-                  <p>{player.completed.length} of 3 bakery mysteries solved</p>
+                  <p>
+                    {player.completed.length} of {cases.length} mysteries solved
+                  </p>
                 </div>
                 <div
                   className="progress-track"
-                  aria-label={`${player.completed.length} of 3 cases completed`}
+                  aria-label={`${player.completed.length} of ${cases.length} cases completed`}
                 >
                   {cases.map((item) => (
                     <span
@@ -538,7 +622,7 @@ export default function App() {
             </section>
           </>
         )}
-        {(page === 'bakery' || page === 'files') && (
+        {(page === 'bakery' || page === 'park' || page === 'files') && (
           <>
             <button className="back-link" onClick={() => navigate('town')}>
               <ChevronLeft size={18} />
@@ -547,12 +631,20 @@ export default function App() {
             <section className="page-intro">
               <div>
                 <div className="eyebrow">
-                  {page === 'bakery' ? 'SOMETHING SMELLS MYSTERIOUS' : 'YOUR DETECTIVE ADVENTURES'}
+                  {page === 'bakery'
+                    ? 'SOMETHING SMELLS MYSTERIOUS'
+                    : page === 'park'
+                      ? 'A PICNIC NEEDS YOUR CLEVER THINKING'
+                      : 'YOUR DETECTIVE ADVENTURES'}
                 </div>
                 <h1>
                   {page === 'bakery' ? (
                     <>
                       Welcome to <span>Ben's Bakery.</span>
+                    </>
+                  ) : page === 'park' ? (
+                    <>
+                      Welcome to <span>Sunny Park.</span>
                     </>
                   ) : (
                     <>
@@ -563,7 +655,9 @@ export default function App() {
                 <p>
                   {page === 'bakery'
                     ? 'Fresh bread, friendly faces, and a sprinkle of mystery.'
-                    : 'Every solved case tells a story. Which one will you uncover next?'}
+                    : page === 'park'
+                      ? 'Help your three friends get Sunny Park ready for a picnic.'
+                      : 'Every solved case tells a story. Which one will you uncover next?'}
                 </p>
               </div>
               <div className="character-lineup">
@@ -572,16 +666,29 @@ export default function App() {
                 <Character who="pip" size={70} />
               </div>
             </section>
+            {page === 'park' && (
+              <section className="park-overview" aria-label="Your Sunny Park repairs">
+                <ParkScene completed={player.completed} />
+                <p>
+                  {visibleCases.filter((item) => player.completed.includes(item.id)).length} of 3
+                  Park mysteries solved · Each discovery brings our picnic closer.
+                </p>
+              </section>
+            )}
             <section className="cases-grid">
-              {cases.map((item, index) => {
+              {visibleCases.map((item) => {
+                const index = caseNumber(item) - 1;
                 const available = canPlayCase(player, item.id);
                 const complete = player.completed.includes(item.id);
                 return (
                   <article className={`case-card ${!available ? 'case-locked' : ''}`} key={item.id}>
                     <div className={`case-cover cover-${index}`}>
-                      <CookieArt cupcake={index === 1} recipe={index === 2} />
+                      <CaseArt gameCase={item} />
 
-                      <span className="case-number">CASE {String(index + 1).padStart(2, '0')}</span>
+                      <span className="case-number">
+                        {page === 'files' && `${locationDetails[item.location].name} · `}CASE{' '}
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
                       {complete && (
                         <span className="solved-pill">
                           <Check size={14} />
@@ -613,7 +720,9 @@ export default function App() {
                             ? 'Resume mystery'
                             : available
                               ? 'Open mystery'
-                              : `Solve case ${index} to unlock`}
+                              : item.location === 'park' && !parkAvailable
+                                ? 'Solve the three Bakery mysteries'
+                                : `Solve case ${index} to unlock`}
                         {available ? <ArrowRight size={18} /> : <LockKeyhole size={16} />}
                       </button>
                     </div>
@@ -624,7 +733,10 @@ export default function App() {
             <div className="friendly-note">
               <Character who="pip" size={55} />
               <p>
-                “Me? Suspicious? I just came for the breadcrumbs.” <span>— Pip, probably</span>
+                {page === 'park'
+                  ? '“Look for matching shapes. A little clue can solve a big muddle.”'
+                  : '“Me? Suspicious? I just came for the breadcrumbs.”'}{' '}
+                <span>— Pip</span>
               </p>
             </div>
           </>
@@ -632,7 +744,7 @@ export default function App() {
         {page === 'case' && activeCase && (
           <>
             <div className="case-page-top">
-              <button className="back-link" onClick={() => navigate('bakery')}>
+              <button className="back-link" onClick={() => navigate(activeCase.location)}>
                 <ChevronLeft size={18} />
                 Leave & save
               </button>
@@ -644,7 +756,8 @@ export default function App() {
             <section className="page-intro compact">
               <div>
                 <div className="eyebrow">
-                  CASE {String(cases.indexOf(activeCase) + 1).padStart(2, '0')} · BEN'S BAKERY
+                  CASE {String(caseNumber(activeCase)).padStart(2, '0')} ·{' '}
+                  {locationDetails[activeCase.location].name.toUpperCase()}
                 </div>
                 <h1>{activeCase.title}</h1>
                 <p>Talk to your friends. Inspect the scene. The clues are all around you.</p>
@@ -655,24 +768,35 @@ export default function App() {
               </div>
             </section>
             <div className="investigation-layout">
-              <section className="bakery-scene">
-                <img
-                  src="/bakery-scene.svg"
-                  alt="Inside the bakery: trays of cookies, flour, recipes, and a mysterious experiment"
-                />
+              <section
+                className={`bakery-scene ${activeCase.location === 'park' ? 'park-investigation' : ''}`}
+              >
+                {activeCase.location === 'park' ? (
+                  <ParkScene
+                    completed={player.completed}
+                    solved={player.session?.solved}
+                    replayCaseId={activeCase.id}
+                  />
+                ) : (
+                  <img src={locationDetails.bakery.scene} alt={locationDetails.bakery.alt} />
+                )}
                 {activeCase.clues.map((clue, index) => (
                   <button
                     key={clue.id}
+                    aria-label={`Inspect ${clue.title}`}
+                    title={clue.title}
                     className={`clue-hotspot ${player.session?.solved.includes(clue.puzzleId ?? '') ? 'found' : ''}`}
                     style={{
-                      left: `${[21, 51, 78, 39, 89, 65][index]}%`,
-                      top: `${[51, 37, 61, 78, 29, 84][index]}%`,
+                      left: `${clue.hotspot?.x ?? [21, 51, 78, 39, 89, 65][index]}%`,
+                      top: `${clue.hotspot?.y ?? [51, 37, 61, 78, 29, 84][index]}%`,
                     }}
                     onClick={() => discover(clue)}
                   >
                     <span>
                       {player.session?.clues.includes(clue.id) ? (
                         <Check size={21} />
+                      ) : activeCase.location === 'park' ? (
+                        <span aria-hidden="true">{clue.icon}</span>
                       ) : (
                         <Search size={21} />
                       )}
@@ -682,7 +806,9 @@ export default function App() {
                 ))}
                 <div className="scene-caption">
                   <Sparkles size={17} />
-                  Follow the magnifying glasses to discover clues.
+                  {activeCase.location === 'park'
+                    ? 'Choose an object to inspect.'
+                    : 'Follow the magnifying glasses to discover clues.'}
                 </div>
               </section>
               <aside className="investigation-sidebar">
@@ -690,6 +816,17 @@ export default function App() {
                   <Compass size={20} />
                   Your next steps
                 </h3>
+                {activeCase.location === 'park' && (
+                  <div className="park-clue-list">
+                    <p className="small muted">Choose an object to inspect.</p>
+                    {activeCase.clues.map((clue) => (
+                      <button key={clue.id} onClick={() => discover(clue)}>
+                        {clue.icon} {clue.title}
+                        {player.session?.clues.includes(clue.id) && <Check size={16} />}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div className="checklist">
                   <p className={collectedClues.length === activeCase.clues.length ? 'done' : ''}>
                     <span>
@@ -869,7 +1006,7 @@ export default function App() {
               ) : (
                 <p>Your first sticker is hiding in a bakery mystery.</p>
               )}
-              <button className="text-button" onClick={() => navigate('bakery')}>
+              <button className="text-button" onClick={() => startCase(featuredCase.id)}>
                 Find another adventure <ArrowRight size={16} />
               </button>
             </div>
@@ -1043,6 +1180,13 @@ export default function App() {
             <Character who="ben" size={138} />
             <div className="eyebrow">BAKER BEN NEEDS YOUR HELP</div>
             <h2>{activeCase.title}</h2>
+            {activeCase.location === 'park' && (
+              <ParkScene
+                completed={player.completed}
+                solved={player.session?.solved}
+                replayCaseId={activeCase.id}
+              />
+            )}
             <p className="dialogue-bubble">{activeCase.intro}</p>
             <button
               className="button primary full"
@@ -1070,7 +1214,13 @@ export default function App() {
                   <article className="clue-card" key={clue.id}>
                     <span>{clue.icon}</span>
                     <h3>{clue.title}</h3>
-                    <p>{clue.description}</p>
+                    {activeCase?.location === 'park' && (
+                      <ParkEvidence
+                        clueId={clue.id}
+                        solved={player.session?.solved.includes(clue.puzzleId ?? '')}
+                      />
+                    )}
+                    <p>{clueText(clue)}</p>
                     {clue.puzzleId && (
                       <small>
                         {player.session?.solved.includes(clue.puzzleId)
@@ -1085,34 +1235,40 @@ export default function App() {
               <div className="empty-notebook">
                 <Search size={46} />
                 <h3>A fresh page for a fresh adventure.</h3>
-                <p>Visit the Bakery and inspect a clue to add it here.</p>
-                <button className="button primary" onClick={() => navigate('bakery')}>
-                  Explore the Bakery <ArrowRight size={17} />
+                <p>Open a mystery and inspect a clue to add it here.</p>
+                <button className="button primary" onClick={() => startCase(featuredCase.id)}>
+                  Explore {locationDetails[featuredCase.location].name} <ArrowRight size={17} />
                 </button>
               </div>
             )}
           </div>
         </Modal>
       )}
-      {overlay === 'dialogue' && selectedClue && (
+      {overlay === 'dialogue' && currentClue && (
         <Modal
-          label={`Talk to ${characterNames[selectedClue.character]}`}
+          label={`Talk to ${characterNames[currentClue.character]}`}
           onClose={() => setOverlay(null)}
         >
           <div className="dialogue-content">
-            <Character who={selectedClue.character} size={128} />
-            <div className="eyebrow">{characterNames[selectedClue.character]}</div>
-            <h2>{selectedClue.title}</h2>
-            <p className="dialogue-bubble">{selectedClue.description}</p>
+            <Character who={currentClue.character} size={128} />
+            <div className="eyebrow">{characterNames[currentClue.character]}</div>
+            <h2>{currentClue.title}</h2>
+            {activeCase?.location === 'park' && (
+              <ParkEvidence
+                clueId={currentClue.id}
+                solved={player.session?.solved.includes(currentClue.puzzleId ?? '')}
+              />
+            )}
+            <p className="dialogue-bubble">{clueText(currentClue)}</p>
             <div className="clue-collected">
               <BookOpen size={17} />
               Clue added to your notebook
             </div>
-            {selectedClue.puzzleId && !player.session?.solved.includes(selectedClue.puzzleId) ? (
+            {currentClue.puzzleId && !player.session?.solved.includes(currentClue.puzzleId) ? (
               <button
                 className="button primary full"
                 onClick={() => {
-                  setPuzzleId(selectedClue.puzzleId!);
+                  setPuzzleId(currentClue.puzzleId!);
                   setOverlay('puzzle');
                 }}
               >
@@ -1147,7 +1303,13 @@ export default function App() {
                 <div key={clue.id}>
                   <span>{clue.icon}</span>
                   <strong>{clue.title}</strong>
-                  <p>{clue.description}</p>
+                  {activeCase.location === 'park' && (
+                    <ParkEvidence
+                      clueId={clue.id}
+                      solved={player.session?.solved.includes(clue.puzzleId ?? '')}
+                    />
+                  )}
+                  <p>{clueText(clue)}</p>
                 </div>
               ))}
             </div>
@@ -1195,7 +1357,7 @@ export default function App() {
             </div>
             <p className="dialogue-bubble">{activeCase.reveal}</p>
             <button className="button primary full" onClick={award}>
-              Collect my rewards <Sparkles size={19} />
+              {activeCase.repairLabel ?? 'Collect my rewards'} <Sparkles size={19} />
             </button>
           </div>
         </Modal>
@@ -1213,6 +1375,7 @@ export default function App() {
             <div className="eyebrow">CASE CLOSED. CURIOSITY OPEN.</div>
             <h2>{wasReplay ? 'Another mystery well solved!' : 'Wonderful detective work!'}</h2>
             <p>{rewardedCase.title}</p>
+            {rewardedCase.location === 'park' && <ParkScene completed={player.completed} />}
             <div className="reward-row">
               <div>
                 <Star size={29} fill="currentColor" />

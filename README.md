@@ -1,24 +1,29 @@
 # Tiny Town Detectives
 
-**Every clue counts.** A cheerful, locally saved adventure for children roughly ages 7–12, built with React, TypeScript, and Vite. Explore an illustrated town, investigate Ben’s Bakery, connect evidence, and decorate a detective clubhouse. There is no account, backend, payment system, or remote game data.
+**Every clue counts.** A cheerful, locally saved adventure for children roughly ages 7–12, built with React, TypeScript, and Vite. Explore an illustrated town, investigate Ben’s Bakery and Sunny Park, connect evidence, and decorate a detective clubhouse. There is no account, backend, payment system, or remote game data.
 
 ## Play the adventure
 
 Choose a made-up detective nickname, an avatar, a hat, and an adventure level. The short welcome introduces the clubhouse and starts the first mystery.
 
-Each case follows the same loop: meet the characters → inspect bakery clues → solve three story puzzles → review the notebook → choose an explanation → see the reveal → collect rewards → furnish the clubhouse.
+Each case follows the same loop: meet the characters → inspect clues → solve three story puzzles → review the notebook → choose an explanation → see the reveal → collect rewards → furnish the clubhouse. In Sunny Park, the reward action also puts the picnic, flower signs, or kite tails back in place.
 
-| Mystery             | Learning woven into the story                                                              |
-| ------------------- | ------------------------------------------------------------------------------------------ |
-| The Missing Cookies | Count trays, find missing cookies, and compare delivery times.                             |
-| The Giant Cupcake   | Convert kilograms to grams, compare a recipe with a flour bag, and read an experiment log. |
-| The Mystery Recipe  | Reorder recipe steps, measure a fraction of the sugar, and compare witness accounts.       |
+| Mystery                       | Learning woven into the story                                                                  |
+| ----------------------------- | ---------------------------------------------------------------------------------------------- |
+| The Missing Cookies           | Count trays, find missing cookies, and compare delivery times.                                 |
+| The Giant Cupcake             | Convert kilograms to grams, compare a recipe with a flour bag, and read an experiment log.     |
+| The Mystery Recipe            | Reorder recipe steps, measure a fraction of the sugar, and compare witness accounts.           |
+| The Picnic at the Wrong Bench | Follow trolley tracks, group delivery tags, and reconstruct the original direction sign.       |
+| The Mixed Up Flower Signs     | Observe three flowerbeds, sort illustrated labels, and reconstruct a planting map.             |
+| The Missing Kite Tails        | Follow ribbon scraps, classify ribbons by pattern and attachment, and assemble a kite picture. |
 
-Baker Ben, Professor Hamster, and Pip the Pigeon recur throughout. Each conclusion is harmless and playful. Hints and retries never reduce rewards. Library, Park, and Science Museum are marked as future locations; Bakery and Clubhouse are playable.
+Baker Ben, Professor Hamster, and Pip the Pigeon recur throughout. Each conclusion is harmless and playful. Hints and retries never reduce rewards. Bakery, Park, and Clubhouse are playable; Library and Science Museum remain future locations. Park opens after all three Bakery mysteries are completed, including completions loaded from an existing save.
 
-Junior Detective, Detective, and Master Detective adjust quantities, wording, clue counts, recipe length, and hints. Junior hints appear immediately. Settings can change the level at any time; collected discoveries remain saved, and unsolved puzzles use the new level.
+Junior Detective, Detective, and Master Detective adjust quantities, wording, clue counts, recipe length, route checkpoints, sorting objects, picture grids, and hints. Junior hints appear immediately and picture pieces do not need rotation. Settings can change the level at any time; collected discoveries remain saved, and unsolved puzzles use the new level.
 
-Cases unlock in order. First completion grants the case’s stars, coins, sticker, and decoration. Completing all three earns nine stars and 150 coins before any purchases. Replays give no extra currency or duplicate rewards. Spend earned coins on decorations and equip them in four predefined slots: desk, shelf, wall, and floor.
+Cases unlock in order within each location. First completion grants the case’s stars, coins, sticker, and decoration. Each location earns nine stars and 150 coins; all six mysteries earn 18 stars and 300 coins before any purchases. Replays give no extra currency or duplicate rewards. Park repairs remain visible on ordinary visits; a replay temporarily restores its own mystery while keeping the other completed repairs. Spend earned coins on decorations and equip them in four predefined slots: desk, shelf, wall, and floor.
+
+The [Sunny Park design](design_docs/park-design.md) describes its mysteries, evidence, and visual progress. The [feature plan](design_docs/park-feature-plan.md) records the implementation scope and acceptance checks.
 
 ## Run locally
 
@@ -56,7 +61,8 @@ src/
     Character.tsx         Original SVG character portraits and detective customization
     RoomItem.tsx          Original SVG clubhouse furniture and decorations
     Modal.tsx             Native dialog with labels and close controls
-    Puzzle.tsx            Number, sequence, and evidence-choice puzzle views
+    Puzzle.tsx            Number, sequence, choice, route, sorting, and tile puzzle views
+    ParkScene.tsx         Park repairs, saved discoveries, and illustrated physical evidence
   audio.ts                Optional Web Audio effects and background melody
   pwa.ts                  Service-worker registration and offline-ready event
   styles.css              Responsive theme, interaction states, reduced-motion rules
@@ -64,6 +70,8 @@ src/
 public/
   town-map.svg            Illustrated town environment
   bakery-scene.svg        Illustrated bakery environment
+  park-scene.svg          Illustrated park environment
+  park-*.svg              Park thumbnails and fixed-grid picture assets
   manifest.webmanifest    App identity, standalone display, installation icons
   icon.svg                Original icon source
   icon-192.png
@@ -71,7 +79,7 @@ public/
 vite.config.ts            React build and Workbox-generated service worker
 ```
 
-Persistent player data is separate from temporary page and modal state. The active case session stores clue IDs, solved puzzle IDs, and whether its introduction has been seen. Case content lives in structured `GameCase` objects returned by `casesFor(difficulty)`.
+Persistent player data is separate from temporary page and modal state. The active case session stores clue IDs, solved puzzle IDs, and whether its introduction has been seen. Case content lives in structured `GameCase` objects returned by `casesFor(difficulty)`; this catalog includes both locations, while their pickers filter by location. Park repairs derive from completed case IDs and discoveries from solved puzzle IDs.
 
 ## Puzzle engines and accessibility
 
@@ -80,15 +88,18 @@ Persistent player data is separate from temporary page and modal state. The acti
 - `number`: a finite numeric answer, with optional unit text. Story data supplies arithmetic, decimals, fractions, and measurement challenges.
 - `sequence`: a starting card array and an ordered answer array. Pointer handles support mouse and touch; labelled up/down buttons offer keyboard and tap alternatives.
 - `choice`: evidence options and a zero-based correct option index.
+- `route`: a small fixed grid with a start, destination, obstacles, and ordered checkpoints. Select adjacent cells, then undo or reset. Every valid path passes, without a shortest-path requirement.
+- `sort`: objects with illustrated attributes and three labelled rule trays. Select an object and assign a tray; revise any placement before checking. Every object must match its tray; object order is irrelevant and a tray can remain empty.
+- `tiles`: a rectangular picture board with unique fragments. Select a fragment and slot, place or remove it, and rotate where enabled. All fragments must occupy their matching slots at accepted quarter-turn orientations.
 
-Every puzzle includes a hint and character-driven success text. Incorrect attempts show supportive feedback, then allow another try. Number validation compares exact numeric values; sequence validation checks every card in order.
+Every puzzle includes a hint and character-driven success text. Incorrect attempts show supportive feedback, preserve the current arrangement, and allow another try. Number validation compares exact numeric values; sequence validation checks every card in order. Successful puzzle feedback previews the discovery; **Add discovery to notebook** saves it and reveals its lasting scene change. Park notebook observations gain their discovered facts after this commit.
 
-Native buttons, labelled controls, visible focus outlines, dialog semantics, status announcements, large targets, responsive layouts, and `prefers-reduced-motion` rules support accessible play. No mystery requires dragging: sequence arrows perform the same operation.
+Native buttons, labelled controls, visible focus outlines, dialog semantics, status announcements, large targets, responsive layouts, and `prefers-reduced-motion` rules support accessible play. No mystery requires dragging: sequence arrows and the new engines’ selection, placement, rotation, and undo buttons perform every required operation. Patterns, shapes, and text accompany color.
 
 ## Add another mystery
 
-1. Add a `GameCase` to `casesFor()` in `src/game.ts`, with a unique stable `id`, intro, character clues, three puzzles, conclusion options, correct conclusion index, reveal, and rewards. Follow the existing difficulty variants.
-2. Give clues and puzzles stable IDs. Link each puzzle to its clue with `puzzleId`; use the existing character keys `ben`, `hamster`, and `pip`. Provide enough evidence to explain the conclusion without guessing.
+1. Add a `GameCase` to `casesFor()` in `src/game.ts`, with a unique stable `id`, location, intro, character clues, three puzzles, conclusion options, correct conclusion index, reveal, and rewards. Follow the existing difficulty variants and the mandatory [Kids Game Story Design Guide](design_docs/kids-game-story-design-guide.md).
+2. Give clues and puzzles stable IDs. Link each puzzle to its clue with `puzzleId`; use the existing character keys `ben`, `hamster`, and `pip`. Provide enough evidence to explain the conclusion without guessing. For Park clues, provide object-specific hotspot coordinates and optional post-solve discovery text.
 3. Extend the explicit unlock order in `canPlayCase()`. The case picker and flow consume the returned definitions; new locations would also require their map and navigation UI.
 4. If granting a new decoration, add its stable ID and valid furniture slot to `decorations`. Put standalone illustration assets in `public/` so the build precaches them.
 5. Extend `src/game.test.ts` to check the new case at each level, its unlock prerequisite, answers, reward references, and one-time completion behavior.
@@ -101,13 +112,13 @@ IDs are used in saved progress. Keep existing IDs stable; renaming or removing t
 
 You can leave a mystery for the map or clubhouse and resume it later. Starting another case while one is open returns to the saved mystery first, preserving discoveries. Temporary typed answers, unsubmitted card order, and open dialogs are not saved.
 
-The loader supplies defaults, sanitizes invalid fields, and discards unknown clue, puzzle, case, or decoration IDs. Unversioned and version `0` saves are normalized and rewritten as version `1`. Future save versions are preserved rather than overwritten; the app signals when saving fails. To introduce version `2`, add an explicit migration in `storage.ts` and corresponding round-trip tests before changing the writer.
+The loader supplies defaults, sanitizes invalid fields, and discards unknown clue, puzzle, case, or decoration IDs. Unversioned and version `0` saves are normalized and rewritten as version `1`. Existing Bakery saves keep their IDs, progress, currency, and equipment; Park adds content without changing the saved shape or version. No location or repair flags are stored, and route, sorting, and tile drafts are temporary. Future save versions are preserved rather than overwritten; the app signals when saving fails. To introduce version `2`, add an explicit migration in `storage.ts` and corresponding round-trip tests before changing the writer.
 
 Saves belong to that browser and origin. Clearing site storage removes them; devices and browsers do not synchronize. A nickname stays local and should be a made-up name.
 
 ## Offline PWA and installation
 
-PWA caching is enabled in the **production build**, not the development server. `vite-plugin-pwa` generates `dist/sw.js` with Workbox. Its precache contains built JavaScript, CSS, HTML, SVG illustrations, PNG icons, the manifest, and WOFF2 fonts. Case definitions are bundled with the JavaScript, so the three Bakery mysteries need no network requests after caching. Navigations fall back to the cached `index.html`.
+PWA caching is enabled in the **production build**, not the development server. `vite-plugin-pwa` generates `dist/sw.js` with Workbox. Its precache contains built JavaScript, CSS, HTML, SVG illustrations, PNG icons, the manifest, and WOFF2 fonts, including Park scenes, thumbnails, and picture fragments. Case definitions are bundled with the JavaScript, so all six mysteries need no network requests after caching. Navigations fall back to the cached `index.html`.
 
 `src/pwa.ts` registers the worker immediately and emits `pwa-ready` when an active offline cache is ready. The UI also listens to browser online/offline events and shows a connection indicator. A first visit still needs connectivity long enough to load and cache the app.
 
@@ -119,8 +130,8 @@ To check offline behavior manually:
 
 1. Run `npm run build`, then `npm run preview`.
 2. Open the localhost preview, start an adventure, and wait for the offline-ready status/service-worker activation.
-3. Disable connectivity in browser developer tools and reload. Inspect clues, solve a puzzle, leave the case, and resume it.
-4. Restore connectivity, rebuild a change, and check that the next worker updates the cached app while retaining the save.
+3. Disable connectivity in browser developer tools and reload. With Bakery completed, visit Park, inspect clues, solve a puzzle, leave the case, and resume it. Check the picture assets and complete a repair offline.
+4. Restore connectivity, rebuild a change, and check that the next worker updates the cached app while retaining a prior Bakery save and a saved Park session.
 
 Automated game tests do not establish physical-device touch behavior, installation, or browser offline behavior; those require browser/device checks.
 

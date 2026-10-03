@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+<defs>
+<symbol id="butterfly" viewBox="0 0 60 60"><path d="M30 29C4-4-7 28 24 33C-3 41 14 62 30 36C46 62 63 41 36 33C67 28 56-4 30 29Z" fill="#e6b590" stroke="#725f58" stroke-width="3"/><path d="M30 23v21m0-20-6-8m6 8 6-8" fill="none" stroke="#725f58" stroke-width="3" stroke-linecap="round"/></symbol>
+
+
+
+<symbol id="sunflower" viewBox="0 0 60 60"><g fill="#f0ce78" stroke="#8f7858" stroke-width="2"><ellipse cx="30" cy="13" rx="8" ry="12"/><ellipse cx="30" cy="47" rx="8" ry="12"/><ellipse cx="13" cy="30" rx="12" ry="8"/><ellipse cx="47" cy="30" rx="12" ry="8"/><ellipse cx="18" cy="18" rx="8" ry="12" transform="rotate(-45 18 18)"/><ellipse cx="42" cy="42" rx="8" ry="12" transform="rotate(-45 42 42)"/><ellipse cx="42" cy="18" rx="8" ry="12" transform="rotate(45 42 18)"/><ellipse cx="18" cy="42" rx="8" ry="12" transform="rotate(45 18 42)"/><circle cx="30" cy="30" r="13" fill="#aa8063"/></g><path d="M24 26h2m8 0h2m-8 10h4" stroke="#efda9f" stroke-width="3" stroke-linecap="round"/></symbol>
+<symbol id="acorn" viewBox="0 0 60 60"><path d="M17 24h26v12q0 14-13 20-13-6-13-20Z" fill="#d6ab78" stroke="#725f58" stroke-width="3"/><path d="M10 24q0-21 20-21t20 21Z" fill="#8f9e78" stroke="#725f58" stroke-width="3"/><path d="M30 4v-4m-14 15h28m-30 5h32" stroke="#725f58" stroke-width="3"/></symbol>
+
+<symbol id="gate" viewBox="0 0 140 95"><path d="M12 90V27q58-47 116 0v63M3 90h23m88 0h23" fill="none" stroke="#627d68" stroke-width="8" stroke-linecap="round"/><path d="M12 32h116v25H12Z" fill="#fff0c9" stroke="#627d68" stroke-width="3"/><text x="70" y="51" font-family="sans-serif" font-size="19" text-anchor="middle" fill="#476550" font-weight="bold">PARK</text><path d="M34 63v25m24-25v25m24-25v25m24-25v25" stroke="#627d68" stroke-width="4"/></symbol>
+
+</defs>
+<rect width="600" height="600" fill="#f9edcf"/><rect x="10" y="10" width="580" height="580" rx="24" fill="none" stroke="#8c9c78" stroke-width="8"/><path d="M30 66V30h45M526 30h44v49M570 526v44h-58M78 570H30v-55" fill="none" stroke="#c5a573" stroke-width="7"/><path d="M80 400Q120 263 294 310T515 407" fill="none" stroke="#d9c7a2" stroke-width="38"/><path d="M300 133v133" stroke="#809775" stroke-width="18"/>
+<use href="#gate" x="230" y="30" width="140" height="105"/><path d="M301 265v244" stroke="#8c8061" stroke-width="19"/><path d="M365 205H238l-44 42 44 42h127Z" fill="#e8c481" stroke="#7b8065" stroke-width="7"/>
+<use href="#butterfly" x="268" y="219" width="55" height="55"/><g stroke="#7c7860" stroke-width="6"><path d="M45 378h137v50H45Z" fill="#d7ad7f"/><path d="M39 442h149v17H39Z" fill="#dfba89"/><path d="M54 459v37m119-37v37M417 378h137v50H417Z" fill="#d7ad7f"/><path d="M411 442h149v17H411Z" fill="#dfba89"/><path d="M426 459v37m119-37v37"/></g>
+<use href="#butterfly" x="83" y="372" width="59" height="59"/><use href="#sunflower" x="454" y="372" width="59" height="59"/><path d="M48 516h75l12 39H36Z" fill="#e6b28f" stroke="#b79871" stroke-width="4"/><path d="M42 534h87m-63-14-8 32m35-32 6 32" stroke="#fff0cc" stroke-width="3"/>
+<use href="#acorn" x="501" y="48" width="45" height="45"/><path d="M255 509h84v18h-84Z" fill="#c9d6ba" stroke="#7b8065" stroke-width="4"/><circle cx="283" cy="518" r="4" fill="#7b8065"/><circle cx="309" cy="518" r="4" fill="#7b8065"/>
+</svg>

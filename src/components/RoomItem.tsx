@@ -2,6 +2,54 @@ export function RoomItem({ id, size = 80 }: { id: string; size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
       <g stroke="#53695d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        {id === 'park-picnic-pennant' && (
+          <>
+            <path d="M8 17q42 15 84 0" fill="none" stroke="#9d8867" strokeWidth="4" />
+            <path d="m12 21 24 5-17 37Zm26 6h25L50 74Zm27-1 23-5-7 42Z" fill="#e4bd88" />
+            <path
+              d="M50 46q-17-18-17-3 0 8 13 4-12 8-4 12 7 0 8-11 1 11 8 11 8-4-4-12 13 4 13-4 0-15-17 3Z"
+              fill="#e3ae8d"
+              strokeWidth="1.8"
+            />
+            <path d="M50 42v17m0-17-4-5m4 5 4-5" strokeWidth="1.5" />
+            <circle cx="20" cy="38" r="4" fill="#d2ddbd" />
+            <circle cx="80" cy="38" r="4" fill="#d2ddbd" />
+          </>
+        )}
+        {id === 'park-flowerpot' && (
+          <>
+            <ellipse cx="50" cy="92" rx="28" ry="4" fill="#c7c5a2" stroke="none" opacity=".4" />
+            <path
+              d="M50 68V27m0 34q-23-24-27-11 0 15 27 16m0-13q22-26 27-11 0 12-27 19"
+              fill="#92b18a"
+            />
+            <circle cx="50" cy="26" r="18" fill="#e3ae8d" />
+            <circle cx="50" cy="26" r="7" fill="#f4d590" strokeWidth="1.5" />
+            <path d="M26 67h48l-8 24H34Z" fill="#c99a79" />
+            <path d="M23 63h54v10H23Z" fill="#dfb18a" />
+            <path d="M38 79h24" stroke="#efcc9f" strokeWidth="2" />
+          </>
+        )}
+        {id === 'park-kite-mobile' && (
+          <>
+            <path
+              d="M50 5v9M16 23q34-17 68 0M25 21v8m25-14v24m25-18v8"
+              fill="none"
+              stroke="#ac8e66"
+            />
+            {[25, 50, 75].map((x, i) => (
+              <g key={x} transform={`translate(${x} ${i === 1 ? 40 : 29})`}>
+                <path d="m0 0 13 13-13 20-13-20Z" fill={['#e3ae8d', '#aabbd0', '#e1c47d'][i]} />
+                <path d="M0 0v33m-13-20h26m-13 20q-9 10 0 20t0 16" fill="none" strokeWidth="1.5" />
+                <path
+                  d="m-6 54 6-4 6 4-6 4Z"
+                  fill={['#e3ae8d', '#aabbd0', '#e1c47d'][i]}
+                  strokeWidth="1.3"
+                />
+              </g>
+            ))}
+          </>
+        )}
         {id === 'lamp' && (
           <>
             <ellipse cx="50" cy="90" rx="27" ry="5" fill="#c7c5a2" stroke="none" opacity=".4" />
