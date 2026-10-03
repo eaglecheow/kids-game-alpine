@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200">
+<defs>
+<symbol id="butterfly" viewBox="0 0 60 60"><path d="M30 29C4-4-7 28 24 33C-3 41 14 62 30 36C46 62 63 41 36 33C67 28 56-4 30 29Z" fill="#e6b590" stroke="#725f58" stroke-width="3"/><path d="M30 23v21m0-20-6-8m6 8 6-8" fill="none" stroke="#725f58" stroke-width="3" stroke-linecap="round"/></symbol>
+
+
+
+
+
+
+
+
+</defs>
+<rect width="300" height="200" rx="18" fill="#d5e1bb"/><path d="M0 170q160-40 300-4v34H0Z" fill="#b7c99a"/><path d="M67 82h166v39H67Z" fill="#d4aa7a" stroke="#787760" stroke-width="4"/><path d="M59 130h182v17H59Z" fill="#e0bc8b" stroke="#787760" stroke-width="4"/><path d="M73 147v23m154-23v23" stroke="#787760" stroke-width="5"/>
+<use href="#butterfly" x="129" y="68" width="45" height="45"/><path d="M26 156h91l10 36H15Z" fill="#e8b592"/><path d="M52 168q0-20 17-20t17 20m-46 0h59l-7 23H46Z" fill="none" stroke="#9d7863" stroke-width="3" stroke-dasharray="4 4"/>
+<path d="M202 51h58l14 15-14 15h-58Z" fill="#efd190" stroke="#7b8066" stroke-width="3"/>
+<use href="#butterfly" x="210" y="52" width="24" height="24"/><path d="M218 80v40" stroke="#7b8066" stroke-width="5"/>
+</svg>

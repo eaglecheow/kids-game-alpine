@@ -1,4 +1,5 @@
 export type Difficulty = 'junior' | 'detective' | 'master';
+export type Location = 'bakery' | 'park';
 
 export interface CaseSession {
   caseId: string;
@@ -33,10 +34,50 @@ interface PuzzleDetails {
   success: string;
 }
 
+export interface TilePlacement {
+  tileId: string;
+  turns: number;
+}
+
+export type PuzzleAnswer = number | string[] | Record<string, string> | (TilePlacement | null)[];
+
 export type Puzzle =
   | (PuzzleDetails & { type: 'number'; answer: number; unit?: string })
   | (PuzzleDetails & { type: 'sequence'; cards: string[]; answer: string[] })
-  | (PuzzleDetails & { type: 'choice'; options: string[]; answer: number });
+  | (PuzzleDetails & { type: 'choice'; options: string[]; answer: number })
+  | (PuzzleDetails & {
+      type: 'route';
+      rows: number;
+      columns: number;
+      blocked: string[];
+      start: string;
+      end: string;
+      checkpoints: string[];
+      landmarks: Record<string, string>;
+      answer: string[];
+    })
+  | (PuzzleDetails & {
+      type: 'sort';
+      objects: { id: string; label: string; icon: string; description: string }[];
+      trays: { id: string; label: string; icon: string; rule: string }[];
+      answer: Record<string, string>;
+    })
+  | (PuzzleDetails & {
+      type: 'tiles';
+      rows: number;
+      columns: number;
+      image: string;
+      rotation: boolean;
+      tiles: {
+        id: string;
+        label: string;
+        description: string;
+        sourceIndex: number;
+        initialTurns: number;
+        acceptedTurns: number[];
+      }[];
+      answer: TilePlacement[];
+    });
 
 export interface Clue {
   id: string;
@@ -45,10 +86,13 @@ export interface Clue {
   icon: string;
   character: 'ben' | 'hamster' | 'pip';
   puzzleId?: string;
+  hotspot?: { x: number; y: number };
+  discovery?: string;
 }
 
 export interface GameCase {
   id: string;
+  location: Location;
   title: string;
   description: string;
   tag: string;
@@ -60,6 +104,7 @@ export interface GameCase {
   conclusions: string[];
   answer: number;
   reveal: string;
+  repairLabel?: string;
   rewards: { stars: number; coins: number; sticker: string; decoration: string };
 }
 
@@ -78,6 +123,9 @@ export const decorations: {
   { id: 'pigeon-statue', name: 'Pip statue', icon: '🐦', price: 30, slot: 'shelf' },
   { id: 'bookshelf', name: 'Mystery bookshelf', icon: '📚', price: 50, slot: 'floor' },
   { id: 'rug', name: 'Cozy clue rug', icon: '🟡', price: 20, slot: 'floor' },
+  { id: 'park-picnic-pennant', name: 'Picnic pennant', icon: '🦋', price: 40, slot: 'wall' },
+  { id: 'park-flowerpot', name: 'Sunny flowerpot', icon: '🌼', price: 50, slot: 'desk' },
+  { id: 'park-kite-mobile', name: 'Kite mobile', icon: '🪁', price: 60, slot: 'wall' },
 ];
 
 export function getInitialPlayer(): Player {
@@ -136,6 +184,7 @@ export function casesFor(difficulty: Difficulty): GameCase[] {
   return [
     {
       id: 'missing-cookies',
+      location: 'bakery',
       title: 'The Missing Cookies',
       description: 'A tray of trouble. A trail of crumbs. Where did the cookies go?',
       tag: 'Counting & clever clues',
@@ -257,6 +306,7 @@ export function casesFor(difficulty: Difficulty): GameCase[] {
     },
     {
       id: 'giant-cupcake',
+      location: 'bakery',
       title: 'The Giant Cupcake',
       description: 'One tiny recipe. One very, VERY big cupcake.',
       tag: 'Measures & mystery science',
@@ -381,6 +431,7 @@ export function casesFor(difficulty: Difficulty): GameCase[] {
     },
     {
       id: 'mystery-recipe',
+      location: 'bakery',
       title: 'The Mystery Recipe',
       description: 'The recipe is in a muddle. Help put a delicious plan back together.',
       tag: 'Order, fractions & logic',
@@ -510,10 +561,861 @@ export function casesFor(difficulty: Difficulty): GameCase[] {
         'Ben clips the recipe cards together and finds a proper fan. Everyone follows your restored recipe to bake a celebration cake. Pip gets the job of tasting one crumb. “A very important job,” he coos.',
       rewards: { stars: 3, coins: 60, sticker: '👩‍🍳', decoration: 'magnifying-poster' },
     },
+    ...parkCases(level),
   ];
 }
 
-export function validateAnswer(puzzle: Puzzle, answer: number | string[]): boolean {
+function routeBoard(
+  level: number,
+  kind: 'bench' | 'flowers' | 'kites',
+): Pick<
+  Extract<Puzzle, { type: 'route' }>,
+  'rows' | 'columns' | 'blocked' | 'start' | 'end' | 'checkpoints' | 'landmarks' | 'answer'
+> {
+  const size = level === 0 ? 4 : 5;
+  if (kind === 'flowers') {
+    const answer =
+      level === 0
+        ? ['r3c1', 'r3c2', 'r3c3', 'r3c4']
+        : ['r3c1', 'r3c2', 'r3c3', 'r4c3', 'r4c4', 'r4c5', 'r3c5'];
+    return {
+      rows: size,
+      columns: size,
+      blocked: ['r2c2', 'r2c4', 'r4c1'],
+      start: 'r3c1',
+      end: `r3c${size}`,
+      checkpoints:
+        level === 0 ? ['r3c2'] : level === 1 ? ['r3c3', 'r4c4'] : ['r3c3', 'r4c3', 'r4c4'],
+      landmarks: {
+        r3c1: '● Round blossoms at the left bed and Hamster’s stand',
+        [level === 0 ? 'r3c2' : 'r3c3']: '★ Star blossoms at the middle bed',
+        [`r3c${size}`]: '🔔 Bell blossoms at the right bed',
+        r4c3: '🔎 Leaf observation marker',
+        r4c4: '🏷️ Label-holder marker',
+      },
+      answer,
+    };
+  }
+  return {
+    rows: size,
+    columns: size,
+    blocked: level === 2 ? ['r2c1', 'r2c3'] : ['r1c3', 'r2c1', 'r2c3', 'r4c2'],
+    start: 'r1c1',
+    end: `r${size}c${size}`,
+    checkpoints: level === 0 ? ['r2c2'] : level === 1 ? ['r2c2', 'r3c3'] : ['r2c2', 'r3c3', 'r4c4'],
+    landmarks:
+      kind === 'bench'
+        ? {
+            r1c1: '🚪 Entrance gate',
+            r2c2: '🛞 Trolley tracks beside the sign',
+            r3c3: '🧾 Delivery stop',
+            r4c4: '🌻 Sunflower marker',
+            [`r${size}c${size}`]: '🧺 Basket at the sunflower bench',
+          }
+        : {
+            r1c1: '🪁 Grounded kite display',
+            r2c2: '🎀 Ribbon scrap',
+            r3c3: '〰️ Patterned ribbon scrap',
+            r4c4: '📦 Craft-table marker',
+            [`r${size}c${size}`]: '📦 Pip’s labelled ribbon box',
+          },
+    answer: [
+      'r1c1',
+      'r1c2',
+      'r2c2',
+      'r3c2',
+      'r3c3',
+      'r3c4',
+      'r4c4',
+      ...(level === 0 ? [] : ['r4c5', 'r5c5']),
+    ],
+  };
+}
+
+function sortingTray(level: number, kind: 'bench' | 'flowers' | 'kites') {
+  const trays = {
+    bench: [
+      {
+        id: 'butterfly',
+        label: 'Butterfly bench',
+        icon: '🦋',
+        rule: 'Tags with a butterfly destination stamp.',
+      },
+      {
+        id: 'sunflower',
+        label: 'Sunflower bench',
+        icon: '🌻',
+        rule: 'Tags with a sunflower destination stamp.',
+      },
+      {
+        id: 'acorn',
+        label: 'Acorn table',
+        icon: '🌰',
+        rule: 'Tags with an acorn destination stamp.',
+      },
+    ],
+    flowers: [
+      { id: 'round', label: 'Round blossoms', icon: '●', rule: 'Round blossoms with oval leaves.' },
+      {
+        id: 'star',
+        label: 'Star blossoms',
+        icon: '★',
+        rule: 'Pointed star blossoms with narrow leaves.',
+      },
+      {
+        id: 'bell',
+        label: 'Bell blossoms',
+        icon: '🔔',
+        rule: 'Hanging bell blossoms with curved leaves.',
+      },
+    ],
+    kites: [
+      {
+        id: 'tails',
+        label: 'Kite tails',
+        icon: '🪁',
+        rule: 'Long patterned ribbons with an attachment loop.',
+      },
+      {
+        id: 'parcels',
+        label: 'Parcel ribbons',
+        icon: '🎁',
+        rule: 'Flat-ended ribbons that tie around a parcel.',
+      },
+      {
+        id: 'flags',
+        label: 'Picnic flags',
+        icon: '🚩',
+        rule: 'Triangular flags with a hanging tab.',
+      },
+    ],
+  }[kind];
+  const examples = {
+    bench: [
+      [
+        'picnic-tag',
+        'Picnic basket tag',
+        '🦋',
+        'Butterfly destination stamp; straight border.',
+        'butterfly',
+      ],
+      [
+        'butterfly-tag',
+        'Small delivery tag',
+        '🦋',
+        'Butterfly destination stamp; dotted border.',
+        'butterfly',
+      ],
+      [
+        'sunflower-tag',
+        'Flower delivery tag',
+        '🌻',
+        'Sunflower destination stamp; straight border.',
+        'sunflower',
+      ],
+      ['acorn-tag', 'Acorn delivery tag', '🌰', 'Acorn destination stamp; dotted border.', 'acorn'],
+      [
+        'sunflower-tag-two',
+        'Long delivery tag',
+        '🌻',
+        'Sunflower destination stamp; striped border.',
+        'sunflower',
+      ],
+      [
+        'acorn-tag-two',
+        'Square delivery tag',
+        '🌰',
+        'Acorn destination stamp; straight border.',
+        'acorn',
+      ],
+      [
+        'butterfly-flower-border',
+        'Flower-edged tag',
+        '🦋',
+        'Butterfly destination stamp; sunflower-patterned border.',
+        'butterfly',
+      ],
+      [
+        'acorn-butterfly-border',
+        'Butterfly-edged tag',
+        '🌰',
+        'Acorn destination stamp; butterfly-patterned border.',
+        'acorn',
+      ],
+    ],
+    flowers: [
+      ['round-sign', 'Round flower sign', '●', 'Round blossom and oval leaves.', 'round'],
+      ['star-sign', 'Star flower sign', '★', 'Pointed blossom and narrow leaves.', 'star'],
+      ['bell-sign', 'Bell flower sign', '🔔', 'Hanging blossom and curved leaves.', 'bell'],
+      [
+        'round-sign-two',
+        'Small round sign',
+        '●',
+        'Round blossom and oval leaves on a striped card.',
+        'round',
+      ],
+      [
+        'star-sign-two',
+        'Small star sign',
+        '★',
+        'Pointed blossom and narrow leaves on a dotted card.',
+        'star',
+      ],
+      [
+        'bell-sign-two',
+        'Small bell sign',
+        '🔔',
+        'Hanging blossom and curved leaves on a striped card.',
+        'bell',
+      ],
+      [
+        'round-star-border',
+        'Star-edged flower sign',
+        '●',
+        'Round blossom and oval leaves; decorative stars on the border.',
+        'round',
+      ],
+      [
+        'bell-round-border',
+        'Round-edged flower sign',
+        '🔔',
+        'Hanging blossom and curved leaves; decorative circles on the border.',
+        'bell',
+      ],
+    ],
+    kites: [
+      [
+        'striped-tail',
+        'Striped ribbon sample',
+        '〰️',
+        'Long striped ribbon with an attachment loop.',
+        'tails',
+      ],
+      [
+        'dotted-tail',
+        'Dotted ribbon sample',
+        '•••',
+        'Long dotted ribbon with an attachment loop.',
+        'tails',
+      ],
+      [
+        'zigzag-tail',
+        'Zigzag ribbon sample',
+        '⚡',
+        'Long zigzag ribbon with an attachment loop.',
+        'tails',
+      ],
+      [
+        'parcel-ribbon',
+        'Parcel ribbon sample',
+        '🎁',
+        'Flat-ended striped ribbon; no attachment loop.',
+        'parcels',
+      ],
+      ['picnic-flag', 'Picnic flag sample', '🚩', 'Triangular flag with a hanging tab.', 'flags'],
+      [
+        'parcel-ribbon-two',
+        'Short parcel sample',
+        '🎁',
+        'Flat-ended dotted ribbon; no attachment loop.',
+        'parcels',
+      ],
+      [
+        'zigzag-parcel',
+        'Zigzag parcel sample',
+        '⚡',
+        'Zigzag pattern with flat ends; no attachment loop.',
+        'parcels',
+      ],
+      [
+        'striped-flag',
+        'Striped flag sample',
+        '〰️',
+        'Striped triangle with a hanging tab.',
+        'flags',
+      ],
+    ],
+  }[kind].slice(0, 4 + level * 2);
+  return {
+    objects: examples.map(([id, label, icon, description]) => ({ id, label, icon, description })),
+    trays,
+    answer: Object.fromEntries(examples.map(([id, , , , tray]) => [id, tray])),
+  };
+}
+
+function pictureBoard(level: number, kind: 'sign' | 'flowers' | 'kites') {
+  const columns = 2;
+  const rows = level === 2 ? 3 : 2;
+  const fragments = {
+    sign:
+      level === 2
+        ? [
+            [
+              'Gate arch and entrance path',
+              'Gate arch crosses a side edge; entrance path reaches the lower edge.',
+            ],
+            [
+              'Gate crossbar and acorn marker',
+              'Gate crossbar crosses a side edge; an acorn mark sits beside the path.',
+            ],
+            [
+              'Picnic arrow and butterfly bench',
+              'Left-pointing arrowhead above a butterfly bench; bench outlines cross the lower edge.',
+            ],
+            [
+              'Arrow shaft and sunflower bench',
+              'Arrow shaft meets a side edge; sunflower bench outlines cross the lower edge.',
+            ],
+            [
+              'Butterfly bench feet and vine',
+              'Bench feet enter the upper edge; blanket and butterfly vine meet the border.',
+            ],
+            [
+              'Sunflower bench feet and acorn vine',
+              'Bench feet and sign base enter the upper edge; an acorn sits beside the vine.',
+            ],
+          ]
+        : [
+            [
+              'Gate and arrowhead',
+              'Gate arch meets a side edge; a left-pointing arrowhead sits above a path at the lower edge.',
+            ],
+            [
+              'Gate and acorn',
+              'Gate crossbar and arrow shaft meet a side edge; an acorn marks the border.',
+            ],
+            [
+              'Butterfly bench and blanket',
+              'Butterfly bench above a blanket; the curving path enters the upper and side edges.',
+            ],
+            [
+              'Sunflower bench and sign base',
+              'Sunflower bench beside the sign base; the curving path enters the upper and side edges.',
+            ],
+          ],
+    flowers:
+      level === 2
+        ? [
+            [
+              'Gate and butterfly',
+              'Gate crossbar meets a side edge; a butterfly marks the picture border.',
+            ],
+            [
+              'Gate and open path',
+              'Gate crossbar meets a side edge; the straight path crosses the lower edge.',
+            ],
+            [
+              'Round blossoms and star petals',
+              'Beds and path cross a side edge; flower-label stems reach the lower edge.',
+            ],
+            [
+              'Bell blossoms and star petals',
+              'Beds and path cross a side edge; label stems reach the lower edge beside a round margin mark.',
+            ],
+            [
+              'Planting curve and butterfly vine',
+              'Flower-label stems enter the upper edge; planting curve and butterfly vine cross a side edge.',
+            ],
+            [
+              'Planting curve and acorn vine',
+              'Flower-label stems enter the upper edge; planting curve and vine cross a side edge beside an acorn.',
+            ],
+          ]
+        : [
+            [
+              'Gate and round petals',
+              'Gate arch meets a side edge; round blossoms cross the lower edge.',
+            ],
+            [
+              'Gate and bell petals',
+              'Gate crossbar meets a side edge; bell blossoms cross the lower edge.',
+            ],
+            [
+              'Round label and curving path',
+              'Round and star stems cross the upper edge; the planting curve continues across a side edge.',
+            ],
+            [
+              'Bell label and acorn',
+              'Bell and star stems cross the upper edge; the curve continues across a side edge beside an acorn.',
+            ],
+          ],
+    kites:
+      level === 2
+        ? [
+            [
+              'Gate and butterfly mark',
+              'Gate arch meets a side edge; the string curve crosses the lower edge beside a butterfly.',
+            ],
+            [
+              'Gate and acorn mark',
+              'Gate arch meets a side edge; the string curve crosses the lower edge beside an acorn.',
+            ],
+            [
+              'Striped kite and dotted kite',
+              'Striped kite body and tail cross the lower edge; the dotted kite continues across a side edge.',
+            ],
+            [
+              'Zigzag kite and dotted kite',
+              'Zigzag kite body and tail cross the lower edge; the dotted kite continues across a side edge.',
+            ],
+            [
+              'Striped bow and butterfly vine',
+              'Striped tail enters the upper edge; the butterfly vine crosses a side edge.',
+            ],
+            [
+              'Zigzag bow and acorn vine',
+              'Zigzag and dotted tails enter the upper edge; the acorn vine crosses a side edge.',
+            ],
+          ]
+        : [
+            [
+              'Striped kite and gate arch',
+              'Gate arch meets a side edge; striped and dotted kite bodies continue across the lower edge.',
+            ],
+            [
+              'Zigzag kite and acorn',
+              'Gate arch meets a side edge; zigzag and dotted kite bodies continue across the lower edge beside an acorn.',
+            ],
+            [
+              'Striped tail and little box',
+              'Striped kite enters the upper edge, with patterned bows below; dotted tail crosses a side edge beside a little box.',
+            ],
+            [
+              'Zigzag tail and round mark',
+              'Zigzag kite enters the upper edge, with patterned bows below; dotted bows and a round margin mark are nearby.',
+            ],
+          ],
+  }[kind];
+  const answer = Array.from({ length: columns * rows }, (_, sourceIndex) => ({
+    tileId: `${kind}-fragment-${sourceIndex + 1}`,
+    turns: 0,
+  }));
+  return {
+    rows,
+    columns,
+    image: `/park-${kind}${level === 2 ? '-master' : ''}.svg`,
+    rotation: level > 0,
+    tiles: answer
+      .map(({ tileId }, sourceIndex) => ({
+        id: tileId,
+        label: fragments[sourceIndex][0],
+        description: fragments[sourceIndex][1],
+        sourceIndex,
+        initialTurns: level === 0 ? 0 : (sourceIndex % 3) + 1,
+        acceptedTurns: [0],
+      }))
+      .reverse(),
+    answer,
+  };
+}
+
+function parkCases(level: number): GameCase[] {
+  return [
+    {
+      id: 'park-wrong-bench',
+      location: 'park',
+      title: 'The Picnic at the Wrong Bench',
+      description: 'A picnic blanket. An empty basket spot. Follow the trail to lunch!',
+      tag: 'Maps, sorting & picture clues',
+      icon: '🧺',
+      accent: '#e6b96a',
+      intro:
+        '“I followed the picnic arrow,” says Ben. “Where is our basket?” Find it and bring it to the butterfly bench.',
+      clues: [
+        {
+          id: 'park-bench-trail',
+          title: 'Trolley trail',
+          icon: '🛞',
+          character: 'ben',
+          puzzleId: 'park-bench-route',
+          hotspot: { x: 76, y: 49 },
+          description:
+            '“These are my trolley tracks,” says Ben. “Follow the marked stops and see where they lead.”',
+          discovery:
+            'The tracks lead to the intact basket at the sunflower bench. They match Ben’s delivery route.',
+        },
+        {
+          id: 'park-bench-tags',
+          title: 'Delivery tags',
+          icon: '🦋',
+          character: 'pip',
+          puzzleId: 'park-bench-sort',
+          hotspot: { x: 85, y: 55 },
+          description:
+            '“Each tag has a destination stamp,” says Pip. “The picnic tag is here too. Group matching stamps.”',
+          discovery:
+            'The picnic basket’s tag belongs to the butterfly bench, rather than the sunflower bench where it was found.',
+        },
+        {
+          id: 'park-bench-picture',
+          title: 'Original sign picture',
+          icon: '🧩',
+          character: 'hamster',
+          puzzleId: 'park-bench-tiles',
+          hotspot: { x: 53, y: 43 },
+          description:
+            '“This separate picture shows the sign when it was put up,” says Hamster. “Join its edges. Keep the gate upright.”',
+          discovery:
+            'With its gate upright, the original picture points the picnic arrow toward the butterfly bench. Today’s arrow points toward the sunflower bench.',
+        },
+        {
+          id: 'park-bench-collar',
+          title: 'Loose sign collar',
+          icon: '↪️',
+          character: 'pip',
+          hotspot: { x: 50, y: 34 },
+          description:
+            'The sign swivels in its loose collar. Ben’s delivery slip shows him following its arrow. A ribbon flutters as the breeze gently turns the sign.',
+        },
+        ...(level > 0
+          ? [
+              {
+                id: 'park-bench-seal',
+                title: 'An intact basket seal',
+                icon: '🎀',
+                character: 'ben' as const,
+                hotspot: { x: 88, y: 42 },
+                description:
+                  '“My seal is still tied,” says Ben. “Everything inside the basket is safe.”',
+              },
+            ]
+          : []),
+        ...(level > 1
+          ? [
+              {
+                id: 'park-bench-wheel',
+                title: 'Matching wheel marks',
+                icon: '🛞',
+                character: 'hamster' as const,
+                hotspot: { x: 72, y: 58 },
+                description:
+                  'The small wheel marks beside the sunflower bench match Ben’s trolley wheels.',
+              },
+            ]
+          : []),
+      ],
+      puzzles: [
+        {
+          type: 'route',
+          id: 'park-bench-route',
+          title: 'Follow the trolley',
+          question:
+            'Start at the gate. Visit the numbered stops in order, then reach the basket. Stay on open cells.',
+          ...routeBoard(level, 'bench'),
+          hint:
+            level === 0
+              ? 'Select Start, then an adjoining open cell. Visit stop 1 before the basket.'
+              : 'Move one cell up, down, left, or right. Visit every numbered stop in order; Undo helps you try another path.',
+          success: 'Ben’s trolley reached the sunflower bench. There is the intact picnic basket!',
+        },
+        {
+          type: 'sort',
+          id: 'park-bench-sort',
+          title: 'Read the delivery stamps',
+          question:
+            'Select a tag, then its destination tray. Use the stamp, rather than the border decoration.',
+          ...sortingTray(level, 'bench'),
+          hint: 'The butterfly stamp goes with the butterfly bench. Match the other destination stamps in the same way.',
+          success:
+            'The picnic tag has a butterfly stamp. The basket belongs at the butterfly bench!',
+        },
+        {
+          type: 'tiles',
+          id: 'park-bench-tiles',
+          title: 'Rebuild the sign picture',
+          question: 'Join the picture fragments. The gate belongs at the top of the picture.',
+          ...pictureBoard(level, 'sign'),
+          hint:
+            level === 0
+              ? 'Select a fragment, then an empty space. Match the picture edges and the gate marker.'
+              : 'Match the picture edges and keep the gate upright. Rotate a fragment if its lines point the wrong way.',
+          success:
+            'The original arrow points toward the butterfly bench. Today’s arrow has turned toward the sunflower bench.',
+        },
+      ],
+      conclusions: [
+        'Ben chose the sunflower bench even though the sign pointed to the butterfly bench.',
+        'Ben followed a turned sign and delivered the basket to the wrong bench.',
+        'Pip carried the basket away after Ben delivered it.',
+      ],
+      answer: 1,
+      reveal:
+        'The original arrow, butterfly tag, and trolley trail agree: Ben followed a sign that had turned in its loose collar. You found the mix-up! Put the basket on its blanket and secure the sign.',
+      repairLabel: 'Put our picnic in place',
+      rewards: { stars: 3, coins: 40, sticker: '🦋', decoration: 'park-picnic-pennant' },
+    },
+    {
+      id: 'park-flower-signs',
+      location: 'park',
+      title: 'The Mixed Up Flower Signs',
+      description: 'Lovely blossoms. Muddled signs. Which labels belong to these beds?',
+      tag: 'Observation, shapes & orientation',
+      icon: '🌼',
+      accent: '#9ecb91',
+      intro:
+        '“The flowers look lovely. Their signs look muddled!” says Ben. Put the right signs beside the flowers.',
+      clues: [
+        {
+          id: 'park-flowers-path',
+          title: 'Label-delivery path',
+          icon: '🌿',
+          character: 'hamster',
+          puzzleId: 'park-flowers-route',
+          hotspot: { x: 49, y: 62 },
+          description:
+            '“My stand is beside the first bed,” says Hamster. “Visit the marked stops and look at the flowers in all three beds.”',
+          discovery:
+            'Round blossoms grow on the left, star blossoms in the middle, and bell blossoms on the right. All the plants are healthy.',
+        },
+        {
+          id: 'park-flowers-tray',
+          title: 'Flower label tray',
+          icon: '🏷️',
+          character: 'ben',
+          puzzleId: 'park-flowers-sort',
+          hotspot: { x: 68, y: 70 },
+          description:
+            '“This key shows the blossom and leaf shapes,” says Ben. “Sort the signs using those shapes.”',
+          discovery:
+            'The round sign belongs with oval leaves, the star sign with narrow leaves, and the bell sign with curved leaves. The two outer signs do not match their beds.',
+        },
+        {
+          id: 'park-flowers-master',
+          title: 'Master planting map',
+          icon: '🧩',
+          character: 'hamster',
+          puzzleId: 'park-flowers-tiles',
+          hotspot: { x: 26, y: 72 },
+          description:
+            '“These pieces are a separate master map,” says Hamster. “Put it together with the entrance gate at the top.”',
+          discovery:
+            'The upright master map matches the actual flowerbeds: round, star, bell from left to right. Turning it upside down swaps the outer bed positions.',
+        },
+        {
+          id: 'park-flowers-copy',
+          title: 'Working map at the stand',
+          icon: '🗺️',
+          character: 'pip',
+          hotspot: { x: 12.7, y: 75 },
+          description:
+            'The intact working copy’s gate marker is at the stand’s lower edge. Hamster’s stamped placement note points from this copy to the label tray.',
+        },
+        ...(level > 0
+          ? [
+              {
+                id: 'park-flowers-middle',
+                title: 'The middle bed matches',
+                icon: '★',
+                character: 'ben' as const,
+                hotspot: { x: 50, y: 52 },
+                description:
+                  'The middle star-blossom sign matches its flowers. Only the two outer signs are swapped.',
+              },
+            ]
+          : []),
+        ...(level > 1
+          ? [
+              {
+                id: 'park-flowers-holders',
+                title: 'Label-holder marks',
+                icon: '🏷️',
+                character: 'hamster' as const,
+                hotspot: { x: 73, y: 57 },
+                description:
+                  'The holders have paired outer marks. Their positions match a half-turn of the working map.',
+              },
+            ]
+          : []),
+      ],
+      puzzles: [
+        {
+          type: 'route',
+          id: 'park-flowers-route',
+          title: 'Visit the flowerbeds',
+          question:
+            'Start beside the round blossoms. Visit the numbered stops in order, then reach the bell blossoms.',
+          ...routeBoard(level, 'flowers'),
+          hint:
+            level === 0
+              ? 'Select Start beside the round flowers. Pass stop 1 at the star flowers, then reach the bell flowers.'
+              : 'The start, star-blossom stop, and finish show all three beds. Follow the other numbered observation stops in order too.',
+          success:
+            'You observed every bed: round blossoms on the left, star blossoms in the middle, bell blossoms on the right.',
+        },
+        {
+          type: 'sort',
+          id: 'park-flowers-sort',
+          title: 'Group the flower signs',
+          question: 'Match each sign’s blossom and leaves to the tray’s picture key.',
+          ...sortingTray(level, 'flowers'),
+          hint: 'Look at the blossom and the leaves together. Round blossoms have oval leaves. Border decorations do not change the flower group.',
+          success:
+            'The signs are grouped by flower shape. The two outer signs were placed beside different blossoms!',
+        },
+        {
+          type: 'tiles',
+          id: 'park-flowers-tiles',
+          title: 'Join the master map',
+          question:
+            'Join the map picture with the gate at the top. Look for continuous paths and bed shapes.',
+          ...pictureBoard(level, 'flowers'),
+          hint:
+            level === 0
+              ? 'Select a fragment, then a space. Match the gate border and the path edges.'
+              : 'Keep the gate upright. Match paths and blossom outlines; Rotate changes a fragment by one quarter-turn.',
+          success:
+            'The upright map agrees with the flowers. The working copy’s lower gate shows why the outer signs were reversed.',
+        },
+      ],
+      conclusions: [
+        'Hamster used his map upside down and swapped the outer flower signs.',
+        'Ben moved the flowers into different beds after the signs were placed.',
+        'Pip changed the flowers’ shapes while tidying.',
+      ],
+      answer: 0,
+      reveal:
+        'Your observations match the upright master map. Hamster placed the signs using the working copy with its gate at the bottom. That half-turn swapped the outer signs. Put the signs beside their matching flowers.',
+      repairLabel: 'Match the signs to the flowers',
+      rewards: { stars: 3, coins: 50, sticker: '🌼', decoration: 'park-flowerpot' },
+    },
+    {
+      id: 'park-kite-tails',
+      location: 'park',
+      title: 'The Missing Kite Tails',
+      description: 'Three grounded kites have empty loops. Where are their patterned tails?',
+      tag: 'Visual trails, patterns & parts',
+      icon: '🪁',
+      accent: '#9ebed4',
+      intro:
+        '“Our display kites have no tails,” says Ben. “Can you find them?” Find the tails and put them back on the low display.',
+      clues: [
+        {
+          id: 'park-kites-trail',
+          title: 'Ribbon trail',
+          icon: '🎀',
+          character: 'pip',
+          puzzleId: 'park-kites-route',
+          hotspot: { x: 76, y: 80 },
+          description:
+            '“Follow these ribbon scraps to the low craft table,” says Pip. “The numbered markers show where to look.”',
+          discovery:
+            'The trail reaches Pip’s labelled box. Inside are three intact rolled ribbons with stripes, dots, and zigzags.',
+        },
+        {
+          id: 'park-kites-tray',
+          title: 'Ribbon sample tray',
+          icon: '〰️',
+          character: 'hamster',
+          puzzleId: 'park-kites-sort',
+          hotspot: { x: 85, y: 90 },
+          description:
+            '“These sample cards are ready to inspect,” says Hamster. “Sort by pattern and attachment shape, using the tray key.”',
+          discovery:
+            'The three long patterned samples have attachment loops. They are kite tails, matching the intact rolls in Pip’s box.',
+        },
+        {
+          id: 'park-kites-picture',
+          title: 'Kite-making picture',
+          icon: '🧩',
+          character: 'ben',
+          puzzleId: 'park-kites-tiles',
+          hotspot: { x: 61, y: 87 },
+          description:
+            '“This picture shows our complete display,” says Ben. “Join its outlines and match the patterns.”',
+          discovery:
+            'The striped, dotted, and zigzag tails each fit a kite’s matching pattern and empty attachment loop.',
+        },
+        {
+          id: 'park-kites-checklist',
+          title: 'Pip’s tidy checklist',
+          icon: '✅',
+          character: 'pip',
+          hotspot: { x: 91, y: 78 },
+          description:
+            'Pip’s stamp marks the instruction “Roll spare ribbon into my box.” The checklist’s box symbol matches his labelled craft box.',
+        },
+        ...(level > 0
+          ? [
+              {
+                id: 'park-kites-loop',
+                title: 'An uncut loop',
+                icon: '➰',
+                character: 'hamster' as const,
+                hotspot: { x: 53, y: 76 },
+                description:
+                  'The rolled ribbons still have their attachment loops. They can go straight back on the display.',
+              },
+            ]
+          : []),
+        ...(level > 1
+          ? [
+              {
+                id: 'park-kites-label',
+                title: 'Matching box label',
+                icon: '📦',
+                character: 'ben' as const,
+                hotspot: { x: 89, y: 69 },
+                description: 'The box label matches the symbol in Pip’s stamped tidy checklist.',
+              },
+            ]
+          : []),
+      ],
+      puzzles: [
+        {
+          type: 'route',
+          id: 'park-kites-route',
+          title: 'Follow the ribbon scraps',
+          question:
+            'Start at the grounded kite display. Visit the numbered ribbon stops in order and reach the craft box.',
+          ...routeBoard(level, 'kites'),
+          hint:
+            level === 0
+              ? 'Select Start, then a neighbouring open cell. Visit stop 1 before reaching Pip’s box.'
+              : 'Follow open neighbouring cells and visit the numbered scraps in order. You can Undo or Reset without losing rewards.',
+          success:
+            'Pip’s box holds three intact rolls: stripes, dots, and zigzags. The ribbon trail found them!',
+        },
+        {
+          type: 'sort',
+          id: 'park-kites-sort',
+          title: 'Identify the ribbon samples',
+          question:
+            'Sort every sample into kite tails, parcel ribbons, or picnic flags. Check its attachment shape too.',
+          ...sortingTray(level, 'kites'),
+          hint: 'A kite tail is a long patterned ribbon with an attachment loop. Flat ends belong to parcel ribbons; a triangle with a tab is a flag. A tray may stay empty.',
+          success:
+            'Three samples belong in the kite-tail group. Their patterns and loops match the rolled ribbons!',
+        },
+        {
+          type: 'tiles',
+          id: 'park-kites-tiles',
+          title: 'Complete the kite picture',
+          question:
+            'Join the display picture. Follow the continuous kite outlines and matching tail patterns.',
+          ...pictureBoard(level, 'kites'),
+          hint:
+            level === 0
+              ? 'Select a fragment and a space. Match stripes with stripes, dots with dots, and the picture borders.'
+              : 'Match the border, outlines, and patterns. Rotate a fragment until its lines continue into the next piece.',
+          success:
+            'Each recovered tail matches one grounded kite. Pip’s “spare ribbon” was part of this display!',
+        },
+      ],
+      conclusions: [
+        'A breeze blew the kite tails into a tall tree.',
+        'Ben used the kite tails to wrap picnic parcels.',
+        'Pip thought the loose kite tails were spare ribbon and tidied them into his box.',
+      ],
+      answer: 2,
+      reveal:
+        'The trail found intact ribbons in Pip’s box. Their loops and patterns match the missing tails, and his stamped checklist records tidying “spare ribbon.” You spotted the helpful mix-up! Give the grounded kites their tails.',
+      repairLabel: 'Give the kites their tails',
+      rewards: { stars: 3, coins: 60, sticker: '🪁', decoration: 'park-kite-mobile' },
+    },
+  ];
+}
+
+export function validateAnswer(puzzle: Puzzle, answer: PuzzleAnswer): boolean {
   if (puzzle.type === 'sequence') {
     return (
       Array.isArray(answer) &&
@@ -521,10 +1423,95 @@ export function validateAnswer(puzzle: Puzzle, answer: number | string[]): boole
       answer.every((card, index) => card === puzzle.answer[index])
     );
   }
+  if (puzzle.type === 'route') {
+    if (
+      !Array.isArray(answer) ||
+      !Array.from<unknown>(answer).every((cell) => typeof cell === 'string')
+    )
+      return false;
+    const path = answer as string[];
+    if (
+      path[0] !== puzzle.start ||
+      path.at(-1) !== puzzle.end ||
+      new Set(path).size !== path.length ||
+      path.some((cell) => puzzle.blocked.includes(cell))
+    )
+      return false;
+    const cells = path.map((cell) => {
+      const match = /^r([1-9]\d*)c([1-9]\d*)$/.exec(cell);
+      if (!match) return null;
+      const row = Number(match[1]);
+      const column = Number(match[2]);
+      return row <= puzzle.rows && column <= puzzle.columns ? { row, column } : null;
+    });
+    if (cells.some((cell) => cell === null)) return false;
+    for (let index = 1; index < cells.length; index++) {
+      const before = cells[index - 1]!;
+      const current = cells[index]!;
+      if (Math.abs(before.row - current.row) + Math.abs(before.column - current.column) !== 1)
+        return false;
+    }
+    let previous = -1;
+    for (const checkpoint of puzzle.checkpoints) {
+      const index = path.indexOf(checkpoint);
+      if (index <= previous) return false;
+      previous = index;
+    }
+    return true;
+  }
+  if (puzzle.type === 'sort') {
+    if (typeof answer !== 'object' || answer === null || Array.isArray(answer)) return false;
+    const assignment = answer as Record<string, string>;
+    const ids = Object.keys(assignment);
+    return (
+      ids.length === puzzle.objects.length &&
+      puzzle.objects.every(
+        (item) =>
+          Object.hasOwn(assignment, item.id) &&
+          puzzle.trays.some((tray) => tray.id === assignment[item.id]) &&
+          assignment[item.id] === puzzle.answer[item.id],
+      )
+    );
+  }
+  if (puzzle.type === 'tiles') {
+    if (!Array.isArray(answer) || answer.length !== puzzle.rows * puzzle.columns) return false;
+    const used = new Set<string>();
+    return Array.from<unknown>(answer).every((placement, index) => {
+      if (typeof placement !== 'object' || placement === null) return false;
+      const candidate = placement as TilePlacement;
+      const tile = puzzle.tiles.find((item) => item.id === candidate.tileId);
+      if (
+        !tile ||
+        used.has(candidate.tileId) ||
+        candidate.tileId !== puzzle.answer[index].tileId ||
+        !Number.isInteger(candidate.turns) ||
+        candidate.turns < 0 ||
+        candidate.turns > 3 ||
+        !tile.acceptedTurns.includes(candidate.turns)
+      )
+        return false;
+      used.add(candidate.tileId);
+      return true;
+    });
+  }
   return typeof answer === 'number' && Number.isFinite(answer) && answer === puzzle.answer;
 }
 
+export function canVisitPark(player: Player): boolean {
+  return ['missing-cookies', 'giant-cupcake', 'mystery-recipe'].every((id) =>
+    player.completed.includes(id),
+  );
+}
+
 export function canPlayCase(player: Player, id: string): boolean {
+  const parkIndex = ['park-wrong-bench', 'park-flower-signs', 'park-kite-tails'].indexOf(id);
+  if (parkIndex >= 0) {
+    return (
+      canVisitPark(player) &&
+      (parkIndex === 0 ||
+        player.completed.includes(['park-wrong-bench', 'park-flower-signs'][parkIndex - 1]))
+    );
+  }
   const index = ['missing-cookies', 'giant-cupcake', 'mystery-recipe'].indexOf(id);
   return (
     index === 0 ||

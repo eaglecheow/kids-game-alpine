@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200">
+<defs>
+
+
+
+
+
+
+
+
+
+<symbol id="kite-stripe" viewBox="0 0 70 100"><path d="m35 4 29 32-29 45L6 36Z" fill="#e8b08f" stroke="#6b7866" stroke-width="3"/><path d="M15 20h34M10 30h50M12 45h46M19 57h32" stroke="#705e52" stroke-width="3"/><path d="M35 4v77M6 36h58" fill="none" stroke="#7b8270" stroke-width="2"/><circle cx="35" cy="85" r="4" fill="none" stroke="#6b7866" stroke-width="3"/><path d="M35 89v8m-12 0h24" fill="none" stroke="#9b8064" stroke-width="4"/></symbol><symbol id="kite-dot" viewBox="0 0 70 100"><path d="m35 4 29 32-29 45L6 36Z" fill="#b7bfd8" stroke="#6b7866" stroke-width="3"/><g fill="#596b72"><circle cx="23" cy="26" r="4"/><circle cx="46" cy="31" r="4"/><circle cx="27" cy="46" r="4"/><circle cx="43" cy="56" r="4"/></g><path d="M35 4v77M6 36h58" fill="none" stroke="#7b8270" stroke-width="2"/><circle cx="35" cy="85" r="4" fill="none" stroke="#6b7866" stroke-width="3"/><path d="M35 89v8m-12 0h24" fill="none" stroke="#9b8064" stroke-width="4"/></symbol><symbol id="kite-zig" viewBox="0 0 70 100"><path d="m35 4 29 32-29 45L6 36Z" fill="#efcd86" stroke="#6b7866" stroke-width="3"/><path d="m12 30 9-8 9 8 9-8 9 8 9-8M18 49l8-8 8 8 8-8 9 8" fill="none" stroke="#746646" stroke-width="3"/><path d="M35 4v77M6 36h58" fill="none" stroke="#7b8270" stroke-width="2"/><circle cx="35" cy="85" r="4" fill="none" stroke="#6b7866" stroke-width="3"/><path d="M35 89v8m-12 0h24" fill="none" stroke="#9b8064" stroke-width="4"/></symbol></defs>
+<rect width="300" height="200" rx="18" fill="#d5e1bb"/><path d="M0 170q160-40 300-4v34H0Z" fill="#b7c99a"/><use href="#kite-stripe" x="35" y="35" width="62" height="101"/><use href="#kite-dot" x="117" y="35" width="62" height="101"/><use href="#kite-zig" x="199" y="35" width="62" height="101"/><path d="M93 151h107v33H93Z" fill="#cfac84" stroke="#806f56" stroke-width="3"/><path d="M89 147h115v8H89Z" fill="#eccb96" stroke="#806f56" stroke-width="3"/><path d="M142 160h20v14h-20Z" fill="#ede0bc" stroke="#806f56" stroke-width="2"/>
+</svg>
