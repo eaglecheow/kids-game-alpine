@@ -84,6 +84,7 @@ src/
     RoomItem.tsx          Original SVG clubhouse furniture and decorations
     Modal.tsx             Native dialog with labels and close controls
     Puzzle.tsx            Number, sequence, choice, route, sorting, and tile puzzle views
+    SequenceCards.tsx     Recipe card dragging, tap placement, and keyboard reordering
     ParkScene.tsx         Park repairs, saved discoveries, and illustrated physical evidence
   audio.ts                Optional Web Audio effects and background melody
   assets.ts               Public asset URLs relative to the configured hosting path
@@ -110,7 +111,7 @@ Persistent player data is separate from temporary page and modal state. The acti
 `Puzzle` is a discriminated union in `src/game.ts`:
 
 - `number`: a finite numeric answer, with optional unit text. Story data supplies arithmetic, decimals, fractions, and measurement challenges.
-- `sequence`: a starting card array and an ordered answer array. Pointer handles support mouse and touch; labelled up/down buttons offer keyboard and tap alternatives.
+- `sequence`: a starting card array and an ordered answer array. Drag whole cards with a mouse or touch, with a highlighted drop position and scrolling for long recipes. Tap a card and then its new position, or use keyboard controls, as alternatives.
 - `choice`: evidence options and a zero-based correct option index.
 - `route`: a small fixed grid with a start, destination, obstacles, and ordered checkpoints. Select adjacent cells, then undo or reset. Every valid path passes, without a shortest-path requirement.
 - `sort`: objects with illustrated attributes and three labelled rule trays. Select an object and assign a tray; revise any placement before checking. Every object must match its tray; object order is irrelevant and a tray can remain empty.
@@ -118,7 +119,7 @@ Persistent player data is separate from temporary page and modal state. The acti
 
 Every puzzle includes a hint and character-driven success text. Incorrect attempts show supportive feedback, preserve the current arrangement, and allow another try. Number validation compares exact numeric values; sequence validation checks every card in order. Successful puzzle feedback previews the discovery; **Add discovery to notebook** saves it and reveals its lasting scene change. Park notebook observations gain their discovered facts after this commit.
 
-Native buttons, labelled controls, visible focus outlines, dialog semantics, status announcements, large targets, responsive layouts, and `prefers-reduced-motion` rules support accessible play. No mystery requires dragging: sequence arrows and the new engines’ selection, placement, rotation, and undo buttons perform every required operation. Patterns, shapes, and text accompany color.
+Native buttons, labelled controls, visible focus outlines, dialog semantics, status announcements, large targets, responsive layouts, and `prefers-reduced-motion` rules support accessible play. No mystery requires dragging: sequence card selection and the other engines’ selection, placement, rotation, and undo buttons perform every required operation. Patterns, shapes, and text accompany color.
 
 ## Add another mystery
 

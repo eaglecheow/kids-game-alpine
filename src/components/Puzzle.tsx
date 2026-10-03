@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { ArrowDown, ArrowUp, Check, GripVertical, Lightbulb, Sparkles } from 'lucide-react';
+import { ArrowUp, Check, Lightbulb, Sparkles } from 'lucide-react';
 import { publicAsset } from '../assets';
+import { SequenceCards } from './SequenceCards';
 import {
   validateAnswer,
   type Puzzle as PuzzleData,
@@ -63,7 +64,6 @@ export function Puzzle({
   const [hint, setHint] = useState(junior);
   const [feedback, setFeedback] = useState('');
   const [success, setSuccess] = useState(false);
-  const [dragged, setDragged] = useState<number | null>(null);
   const [route, setRoute] = useState<string[]>([]);
   const [assigned, setAssigned] = useState<Record<string, string>>({});
   const [selectedObject, setSelectedObject] = useState<string | null>(null);
@@ -77,15 +77,6 @@ export function Puzzle({
   );
   const [selectedTile, setSelectedTile] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
-  const move = (from: number, to: number) => {
-    if (to < 0 || to >= cards.length || from === to) return;
-    setCards((current) => {
-      const next = [...current];
-      const [card] = next.splice(from, 1);
-      next.splice(to, 0, card);
-      return next;
-    });
-  };
   const check = () => {
     const answer: PuzzleAnswer | null =
       puzzle.type === 'sequence'
@@ -162,56 +153,14 @@ export function Puzzle({
         </div>
       )}
       {puzzle.type === 'sequence' && (
-        <div className="sequence-list">
-          <p className="small muted">
-            Drag the handles, or use the arrows to put the story in order.
-          </p>
-          {cards.map((card, index) => (
-            <div
-              className={`sequence-card ${dragged === index ? 'dragging' : ''}`}
-              key={card}
-              data-card-index={index}
-            >
-              <button
-                className="drag-handle"
-                aria-label={`Drag ${card}`}
-                disabled={success}
-                onPointerDown={(event) => {
-                  event.currentTarget.setPointerCapture(event.pointerId);
-                  setDragged(index);
-                }}
-                onPointerUp={(event) => {
-                  const row = document
-                    .elementFromPoint(event.clientX, event.clientY)
-                    ?.closest('[data-card-index]');
-                  if (row) move(index, Number(row.getAttribute('data-card-index')));
-                  setDragged(null);
-                }}
-                onPointerCancel={() => setDragged(null)}
-              >
-                <GripVertical size={19} />
-              </button>
-              <span className="sequence-number">{index + 1}</span>
-              <span className="sequence-text">{card}</span>
-              <div className="sequence-arrows">
-                <button
-                  aria-label={`Move ${card} up`}
-                  disabled={success || index === 0}
-                  onClick={() => move(index, index - 1)}
-                >
-                  <ArrowUp size={17} />
-                </button>
-                <button
-                  aria-label={`Move ${card} down`}
-                  disabled={success || index === cards.length - 1}
-                  onClick={() => move(index, index + 1)}
-                >
-                  <ArrowDown size={17} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+        <SequenceCards
+          cards={cards}
+          disabled={success}
+          onChange={(next) => {
+            setCards(next);
+            setFeedback('');
+          }}
+        />
       )}
       {puzzle.type === 'route' && (
         <div className="route-puzzle">
