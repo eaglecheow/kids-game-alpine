@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowDown, ArrowUp, Check, GripVertical, Lightbulb, Sparkles } from 'lucide-react';
+import { publicAsset } from '../assets';
 import {
   validateAnswer,
   type Puzzle as PuzzleData,
@@ -17,7 +18,7 @@ function SortPicture({ icon, picture }: { icon: string; picture?: string }) {
       aria-hidden="true"
       focusable="false"
     >
-      <use href={picture} />
+      <use href={publicAsset(picture)} />
     </svg>
   ) : (
     <span aria-hidden="true">{icon}</span>
@@ -38,7 +39,7 @@ function TilePicture({
       className="tile-crop"
       aria-hidden="true"
       style={{
-        backgroundImage: `url("${puzzle.image}")`,
+        backgroundImage: `url("${publicAsset(puzzle.image)}")`,
         backgroundSize: `${puzzle.columns * 100}% ${puzzle.rows * 100}%`,
         backgroundPosition: `${((sourceIndex % puzzle.columns) / (puzzle.columns - 1)) * 100}% ${(Math.floor(sourceIndex / puzzle.columns) / (puzzle.rows - 1)) * 100}%`,
         transform: `rotate(${turns * 90}deg)`,

@@ -34,7 +34,7 @@ npm ci
 npm run dev
 ```
 
-Open the URL Vite prints, normally `http://localhost:5173`. The development server binds to all interfaces so a tablet on the same network can access it. Service-worker installation needs a secure browser context: HTTP localhost is allowed, while a LAN IP or a deployed site needs HTTPS. Ordinary development gameplay works without a service worker.
+Open the URL Vite prints, normally `http://localhost:5173/kids-game-alpine/`. The development server binds to all interfaces so a tablet on the same network can access it. Service-worker installation needs a secure browser context: HTTP localhost is allowed, while a LAN IP or a deployed site needs HTTPS. Ordinary development gameplay works without a service worker.
 
 | Command           | Purpose                                                                 |
 | ----------------- | ----------------------------------------------------------------------- |
@@ -45,7 +45,29 @@ Open the URL Vite prints, normally `http://localhost:5173`. The development serv
 | `npm run lint`    | Check TypeScript, React hooks, and JavaScript with ESLint.              |
 | `npm run format`  | Format source, manifest, HTML, and README with Prettier.                |
 
-Build before running preview. Deploy the contents of `dist/` at the root of an HTTPS origin; the manifest currently uses root-relative URLs.
+Build before running preview, then open `http://localhost:4173/kids-game-alpine/`. The default Vite base is `/kids-game-alpine/`, matching this repository's GitHub Pages address. Images, puzzle illustrations, icons, the manifest, and the service worker use the app's base path.
+
+## Host on GitHub Pages
+
+1. In the repository's **Settings → Pages → Build and deployment**, choose **GitHub Actions** as the source. Pages hosting for a private repository requires a GitHub plan that supports it.
+2. Push these changes to `main`. The **Deploy to GitHub Pages** workflow installs the locked dependencies with Node.js 22, runs lint and tests, builds `dist/`, and deploys it using GitHub's Pages actions. Pull requests run the same validation and build without deploying. After the workflow is on `main`, you can also run it from the **Actions** tab.
+3. Wait for the deployment to succeed, then open `https://eaglecheow.github.io/kids-game-alpine/` (or the URL reported by the deployment if you configure a custom domain).
+
+The workflow reads the base path from GitHub Pages, so a repository rename, a user/organization site, or a custom domain uses the configured path automatically. It publishes only `dist/`; no `gh-pages` branch, backend, additional deploy token, or committed build output is needed. The app's navigation stays on the same URL, so GitHub Pages does not need a custom `404.html` fallback.
+
+For a different hosting path, override Vite's base for both the build and preview:
+
+```sh
+# Host at the root of an HTTPS origin.
+npm run build -- --base /
+npm run preview -- --base /
+
+# Host under a different directory.
+npm run build -- --base /my-game/
+npm run preview -- --base /my-game/
+```
+
+Open the preview URL printed for the chosen base and check that scenes and puzzle pictures load. On localhost, wait for offline-ready status, switch the browser offline, and reload to check the cached app. Installed apps launch their configured URL; moving to another origin does not transfer browser saves.
 
 ## File architecture
 
@@ -64,6 +86,7 @@ src/
     Puzzle.tsx            Number, sequence, choice, route, sorting, and tile puzzle views
     ParkScene.tsx         Park repairs, saved discoveries, and illustrated physical evidence
   audio.ts                Optional Web Audio effects and background melody
+  assets.ts               Public asset URLs relative to the configured hosting path
   pwa.ts                  Service-worker registration and offline-ready event
   styles.css              Responsive theme, interaction states, reduced-motion rules
   main.tsx                React entry point and locally bundled Nunito fonts
@@ -76,7 +99,8 @@ public/
   icon.svg                Original icon source
   icon-192.png
   icon-512.png
-vite.config.ts            React build and Workbox-generated service worker
+vite.config.ts            Hosting base path, React build, and generated service worker
+.github/workflows/pages.yml  Validation and GitHub Pages deployment
 ```
 
 Persistent player data is separate from temporary page and modal state. The active case session stores clue IDs, solved puzzle IDs, and whether its introduction has been seen. Case content lives in structured `GameCase` objects returned by `casesFor(difficulty)`; this catalog includes both locations, while their pickers filter by location. Park repairs derive from completed case IDs and discoveries from solved puzzle IDs.

@@ -1,10 +1,10 @@
 {
-  "id": "/",
+  "id": "./",
   "name": "Tiny Town Detectives",
   "short_name": "Tiny Detectives",
   "description": "Every clue counts. Solve three cheerful bakery mysteries and make your detective clubhouse your own.",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#faf6e9",
   "theme_color": "#186a64",
@@ -12,13 +12,13 @@
   "categories": ["games", "education"],
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
