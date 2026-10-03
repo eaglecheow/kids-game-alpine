@@ -40,6 +40,7 @@ import { Modal } from './components/Modal';
 import { Puzzle } from './components/Puzzle';
 import { ParkScene, ParkEvidence } from './components/ParkScene';
 import { playSound, setMusic } from './audio';
+import { publicAsset } from './assets';
 
 type Page = 'town' | 'bakery' | 'park' | 'case' | 'clubhouse' | 'files';
 type Overlay =
@@ -75,12 +76,12 @@ const locations = [
 const locationDetails = {
   bakery: {
     name: "Ben's Bakery",
-    scene: '/bakery-scene.svg',
+    scene: publicAsset('bakery-scene.svg'),
     alt: 'Inside the bakery: trays of cookies, flour, recipes, and a mysterious experiment',
   },
   park: {
     name: 'Sunny Park',
-    scene: '/park-scene.svg',
+    scene: publicAsset('park-scene.svg'),
     alt: 'Sunny Park with two picnic benches, flowerbeds, and grounded display kites',
   },
 };
@@ -88,9 +89,9 @@ const locationDetails = {
 function CaseArt({ gameCase }: { gameCase: GameCase }) {
   if (gameCase.location === 'park') {
     const images: Record<string, string> = {
-      'park-wrong-bench': '/park-bench-thumb.svg',
-      'park-flower-signs': '/park-flowers-thumb.svg',
-      'park-kite-tails': '/park-kites-thumb.svg',
+      'park-wrong-bench': publicAsset('park-bench-thumb.svg'),
+      'park-flower-signs': publicAsset('park-flowers-thumb.svg'),
+      'park-kite-tails': publicAsset('park-kites-thumb.svg'),
     };
     return (
       <img
@@ -455,7 +456,7 @@ export default function App() {
                 </div>
                 <div className="town-map">
                   <img
-                    src="/town-map.svg"
+                    src={publicAsset('town-map.svg')}
                     alt="An illustrated town with a bakery, clubhouse, library, park, and science museum connected by winding paths"
                   />
                   {locations.map((originalLocation) => {

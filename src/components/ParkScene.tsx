@@ -1,3 +1,5 @@
+import { publicAsset } from '../assets';
+
 function FlowerSymbol({ kind, x, y }: { kind: 'round' | 'star' | 'bell'; x: number; y: number }) {
   return (
     <g transform={`translate(${x} ${y})`} stroke="#725f58" strokeWidth="2">
@@ -71,7 +73,7 @@ export function ParkScene({
 
   return (
     <div className="park-scene-art">
-      <img src="/park-scene.svg" alt={`Sunny Park. ${description}`} />
+      <img src={publicAsset('park-scene.svg')} alt={`Sunny Park. ${description}`} />
       <svg className="park-scene-overlay" viewBox="0 0 900 560" aria-hidden="true">
         <g stroke="#7c8066" strokeWidth="3" strokeLinejoin="round">
           <path
@@ -129,7 +131,7 @@ export function ParkScene({
           </g>
         )}
         {(picnic || found('park-bench-tiles')) && (
-          <image href="/park-sign.svg" x="473" y="227" width="66" height="66" />
+          <image href={publicAsset('park-sign.svg')} x="473" y="227" width="66" height="66" />
         )}
         {picnic && <Basket x={139} y={293} />}
         {(flowers || found('park-flowers-route')) && (
@@ -156,7 +158,7 @@ export function ParkScene({
           </g>
         )}
         {(flowers || found('park-flowers-tiles')) && (
-          <image href="/park-flowers.svg" x="187" y="389" width="83" height="59" />
+          <image href={publicAsset('park-flowers.svg')} x="187" y="389" width="83" height="59" />
         )}
         {flowers && (
           <>
@@ -183,7 +185,7 @@ export function ParkScene({
             />
             <FlowerSymbol kind="bell" x={609} y={346} />
             <image
-              href="/park-flowers.svg"
+              href={publicAsset('park-flowers.svg')}
               x="73"
               y="381"
               width="82"
@@ -238,7 +240,7 @@ export function ParkScene({
           </g>
         )}
         {(kites || found('park-kites-tiles')) && (
-          <image href="/park-kites.svg" x="525" y="469" width="65" height="58" />
+          <image href={publicAsset('park-kites.svg')} x="525" y="469" width="65" height="58" />
         )}
         {(kites || found('park-kites-tiles')) && (
           <g fill="none" strokeWidth={kites ? 4 : 3} strokeDasharray={kites ? undefined : '4 4'}>
@@ -271,9 +273,9 @@ export function ParkScene({
 
 export function ParkEvidence({ clueId, solved = false }: { clueId: string; solved?: boolean }) {
   const pictures: Record<string, string> = {
-    'park-bench-picture': '/park-sign.svg',
-    'park-flowers-master': '/park-flowers.svg',
-    'park-kites-picture': '/park-kites.svg',
+    'park-bench-picture': publicAsset('park-sign.svg'),
+    'park-flowers-master': publicAsset('park-flowers.svg'),
+    'park-kites-picture': publicAsset('park-kites.svg'),
   };
   if (pictures[clueId] && solved) {
     const descriptions: Record<string, string> = {
@@ -354,7 +356,7 @@ export function ParkEvidence({ clueId, solved = false }: { clueId: string; solve
         <>
           <path d="M27 22h140v166H27Z" fill="#b18b67" stroke="#766e59" strokeWidth="3" />
           <image
-            href="/park-flowers.svg"
+            href={publicAsset('park-flowers.svg')}
             x="35"
             y="29"
             width="124"
@@ -365,7 +367,7 @@ export function ParkEvidence({ clueId, solved = false }: { clueId: string; solve
           <path d="M81 21h32v13H81Z" fill="#c5d0bd" stroke="#766e59" strokeWidth="2" />
           <path d="M207 29h127v151H207Z" fill="#fff8e2" stroke="#89785e" strokeWidth="3" />
           <image
-            href="/park-flowers.svg"
+            href={publicAsset('park-flowers.svg')}
             x="221"
             y="37"
             width="54"
