@@ -58,8 +58,8 @@ export type Puzzle =
     })
   | (PuzzleDetails & {
       type: 'sort';
-      objects: { id: string; label: string; icon: string; description: string }[];
-      trays: { id: string; label: string; icon: string; rule: string }[];
+      objects: { id: string; label: string; icon: string; description: string; picture?: string }[];
+      trays: { id: string; label: string; icon: string; rule: string; picture?: string }[];
       answer: Record<string, string>;
     })
   | (PuzzleDetails & {
@@ -675,18 +675,21 @@ function sortingTray(level: number, kind: 'bench' | 'flowers' | 'kites') {
         label: 'Kite tails',
         icon: '🪁',
         rule: 'Long patterned ribbons with an attachment loop.',
+        picture: '/park-kite-samples.svg#striped-tail',
       },
       {
         id: 'parcels',
         label: 'Parcel ribbons',
         icon: '🎁',
         rule: 'Flat-ended ribbons that tie around a parcel.',
+        picture: '/park-kite-samples.svg#parcel-ribbon',
       },
       {
         id: 'flags',
         label: 'Picnic flags',
         icon: '🚩',
         rule: 'Triangular flags with a hanging tab.',
+        picture: '/park-kite-samples.svg#picnic-flag',
       },
     ],
   }[kind];
@@ -790,6 +793,7 @@ function sortingTray(level: number, kind: 'bench' | 'flowers' | 'kites') {
         '〰️',
         'Long striped ribbon with an attachment loop.',
         'tails',
+        '/park-kite-samples.svg#striped-tail',
       ],
       [
         'dotted-tail',
@@ -797,6 +801,7 @@ function sortingTray(level: number, kind: 'bench' | 'flowers' | 'kites') {
         '•••',
         'Long dotted ribbon with an attachment loop.',
         'tails',
+        '/park-kite-samples.svg#dotted-tail',
       ],
       [
         'zigzag-tail',
@@ -804,6 +809,7 @@ function sortingTray(level: number, kind: 'bench' | 'flowers' | 'kites') {
         '⚡',
         'Long zigzag ribbon with an attachment loop.',
         'tails',
+        '/park-kite-samples.svg#zigzag-tail',
       ],
       [
         'parcel-ribbon',
@@ -811,14 +817,23 @@ function sortingTray(level: number, kind: 'bench' | 'flowers' | 'kites') {
         '🎁',
         'Flat-ended striped ribbon; no attachment loop.',
         'parcels',
+        '/park-kite-samples.svg#parcel-ribbon',
       ],
-      ['picnic-flag', 'Picnic flag sample', '🚩', 'Triangular flag with a hanging tab.', 'flags'],
+      [
+        'picnic-flag',
+        'Picnic flag sample',
+        '🚩',
+        'Triangular flag with a hanging tab.',
+        'flags',
+        '/park-kite-samples.svg#picnic-flag',
+      ],
       [
         'parcel-ribbon-two',
         'Short parcel sample',
         '🎁',
         'Flat-ended dotted ribbon; no attachment loop.',
         'parcels',
+        '/park-kite-samples.svg#parcel-ribbon-two',
       ],
       [
         'zigzag-parcel',
@@ -826,6 +841,7 @@ function sortingTray(level: number, kind: 'bench' | 'flowers' | 'kites') {
         '⚡',
         'Zigzag pattern with flat ends; no attachment loop.',
         'parcels',
+        '/park-kite-samples.svg#zigzag-parcel',
       ],
       [
         'striped-flag',
@@ -833,11 +849,18 @@ function sortingTray(level: number, kind: 'bench' | 'flowers' | 'kites') {
         '〰️',
         'Striped triangle with a hanging tab.',
         'flags',
+        '/park-kite-samples.svg#striped-flag',
       ],
     ],
   }[kind].slice(0, 4 + level * 2);
   return {
-    objects: examples.map(([id, label, icon, description]) => ({ id, label, icon, description })),
+    objects: examples.map(([id, label, icon, description, , picture]) => ({
+      id,
+      label,
+      icon,
+      description,
+      picture,
+    })),
     trays,
     answer: Object.fromEntries(examples.map(([id, , , , tray]) => [id, tray])),
   };

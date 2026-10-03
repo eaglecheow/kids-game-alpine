@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="striped-tail" viewBox="0 0 160 100">
+    <ellipse cx="26" cy="50" rx="18" ry="16" fill="#fff9e9" stroke="#4d554b" stroke-width="5"/>
+    <path d="M43 30h105v40H43Z" fill="#e8b08f" stroke="#4d554b" stroke-width="4"/>
+    <path d="M60 32v36m20-36v36m20-36v36m20-36v36m20-36v36" stroke="#705e52" stroke-width="6"/>
+  </symbol>
+  <symbol id="dotted-tail" viewBox="0 0 160 100">
+    <ellipse cx="26" cy="50" rx="18" ry="16" fill="#fff9e9" stroke="#4d554b" stroke-width="5"/>
+    <path d="M43 30h105v40H43Z" fill="#b7bfd8" stroke="#4d554b" stroke-width="4"/>
+    <path d="M60 41h0m20 18h0m20-18h0m20 18h0m18-18h0" stroke="#596b72" stroke-width="10" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="zigzag-tail" viewBox="0 0 160 100">
+    <ellipse cx="26" cy="50" rx="18" ry="16" fill="#fff9e9" stroke="#4d554b" stroke-width="5"/>
+    <path d="M43 30h105v40H43Z" fill="#efcd86" stroke="#4d554b" stroke-width="4"/>
+    <path d="m48 54 12-13 12 18 12-18 12 18 12-18 12 18 12-18 12 13" fill="none" stroke="#746646" stroke-width="6" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="parcel-ribbon" viewBox="0 0 160 100">
+    <path d="M12 30h136v40H12Z" fill="#e8b08f" stroke="#4d554b" stroke-width="4"/>
+    <path d="M24 32v36m18-36v36m18-36v36m20-36v36m20-36v36m20-36v36m20-36v36" stroke="#705e52" stroke-width="6"/>
+  </symbol>
+  <symbol id="parcel-ribbon-two" viewBox="0 0 160 100">
+    <path d="M30 30h100v40H30Z" fill="#b7bfd8" stroke="#4d554b" stroke-width="4"/>
+    <path d="M44 41h0m18 18h0m18-18h0m18 18h0m18-18h0" stroke="#596b72" stroke-width="10" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="zigzag-parcel" viewBox="0 0 160 100">
+    <path d="M12 30h136v40H12Z" fill="#efcd86" stroke="#4d554b" stroke-width="4"/>
+    <path d="m16 54 12-13 12 18 12-18 12 18 12-18 12 18 12-18 12 18 12-18 12 13" fill="none" stroke="#746646" stroke-width="6" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="picnic-flag" viewBox="0 0 160 100">
+    <path d="M12 36h24v28H12Z" fill="#fff9e9" stroke="#4d554b" stroke-width="4"/>
+    <path d="m36 18 112 32-112 32Z" fill="#a9c591" stroke="#4d554b" stroke-width="4" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="striped-flag" viewBox="0 0 160 100">
+    <path d="M12 36h24v28H12Z" fill="#fff9e9" stroke="#4d554b" stroke-width="4"/>
+    <path d="m36 18 112 32-112 32Z" fill="#e8b08f" stroke="#4d554b" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M52 24v52m20-46v40m20-34v28m20-22v16" stroke="#705e52" stroke-width="6"/>
+  </symbol>
+</svg>

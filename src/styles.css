@@ -3610,6 +3610,12 @@ footer button {
 .sort-object > span {
   font-size: 22px;
 }
+.sort-picture {
+  display: block;
+  width: 144px;
+  max-width: 100%;
+  height: auto;
+}
 .sort-object small,
 .sort-tray small {
   display: block;
@@ -3620,8 +3626,6 @@ footer button {
 .tile-fragment.selected,
 .tile-slot.selected {
   border-color: #375f47;
-  outline: 2px solid #c2dca9;
-  outline-offset: 1px;
   background-color: #eaf3d9;
 }
 .sort-trays {
@@ -3719,6 +3723,9 @@ footer button {
   padding: 4px 6px;
   background: #e5ecd7;
   font-size: 11px;
+}
+.sort-tray-items .sort-picture {
+  width: 48px;
 }
 .tile-slot:has(.tile-crop) {
   border-style: solid;

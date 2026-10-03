@@ -7,6 +7,23 @@ import {
   type TilePlacement,
 } from '../game';
 
+function SortPicture({ icon, picture }: { icon: string; picture?: string }) {
+  return picture ? (
+    <svg
+      className="sort-picture"
+      viewBox="0 0 160 100"
+      width="160"
+      height="100"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <use href={picture} />
+    </svg>
+  ) : (
+    <span aria-hidden="true">{icon}</span>
+  );
+}
+
 function TilePicture({
   puzzle,
   sourceIndex,
@@ -323,7 +340,7 @@ export function Puzzle({
                     setFeedback('');
                   }}
                 >
-                  <span aria-hidden="true">{object.icon}</span>
+                  <SortPicture icon={object.icon} picture={object.picture} />
                   <strong>{object.label}</strong>
                   <small>{object.description}</small>
                   <small>{tray ? `In ${tray.label}` : 'Unsorted'}</small>
@@ -351,7 +368,7 @@ export function Puzzle({
                 }}
               >
                 <strong>
-                  <span aria-hidden="true">{tray.icon}</span> {tray.label}
+                  <SortPicture icon={tray.icon} picture={tray.picture} /> {tray.label}
                 </strong>
                 <small>{tray.rule}</small>
                 <small className="sort-tray-items">
@@ -359,7 +376,7 @@ export function Puzzle({
                     .filter((object) => assigned[object.id] === tray.id)
                     .map((object) => (
                       <span key={object.id}>
-                        {object.icon} {object.label}
+                        <SortPicture icon={object.icon} picture={object.picture} /> {object.label}
                       </span>
                     ))}
                 </small>
