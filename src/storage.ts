@@ -5,7 +5,9 @@ import {
   type CaseSession,
   type Difficulty,
   type Player,
+  type RoomPlacement,
 } from './game';
+import { clampRoomPosition } from './clubhouse';
 
 export const SAVE_KEY = 'tiny-town-detectives.player';
 
@@ -22,7 +24,13 @@ const object = (value: unknown): Record<string, unknown> | null =>
 
 function restorePlayer(value: unknown): Player | null {
   const saved = object(value);
-  if (!saved || (saved.version !== undefined && saved.version !== 0 && saved.version !== 1))
+  if (
+    !saved ||
+    (saved.version !== undefined &&
+      saved.version !== 0 &&
+      saved.version !== 1 &&
+      saved.version !== 2)
+  )
     return null;
   const defaults = getInitialPlayer();
   const difficulty: Difficulty =
@@ -39,14 +47,10 @@ function restorePlayer(value: unknown): Player | null {
         .map((gameCase) => gameCase.rewards.decoration),
     ]),
   ];
-  const equipped = Object.fromEntries(
-    Object.entries(object(saved.equipped) ?? {}).filter(
-      ([slot, id]) =>
-        typeof id === 'string' &&
-        unlocked.includes(id) &&
-        decorations.some((item) => item.id === id && item.slot === slot),
-    ),
-  ) as Record<string, string>;
+  const roomItems =
+    saved.version === 2
+      ? restoreRoomItems(saved.roomItems, unlocked)
+      : migrateEquipped(saved.equipped, unlocked);
   const rawSession = object(saved.session);
   const caseDefinition = cases.find((gameCase) => gameCase.id === rawSession?.caseId);
   const session: CaseSession | null =
@@ -77,12 +81,57 @@ function restorePlayer(value: unknown): Player | null {
     completed,
     stickers: stringList(saved.stickers),
     unlocked,
-    equipped,
+    roomItems,
     sound: typeof saved.sound === 'boolean' ? saved.sound : defaults.sound,
     music: typeof saved.music === 'boolean' ? saved.music : defaults.music,
     onboarded: saved.onboarded === true,
     session,
   };
+}
+
+function restoreRoomItems(value: unknown, unlocked: string[]): RoomPlacement[] {
+  const roomItems: RoomPlacement[] = [];
+  if (!Array.isArray(value)) return roomItems;
+  const seen = new Set<string>();
+  for (const entry of value) {
+    const item = object(entry);
+    if (
+      !item ||
+      typeof item.id !== 'string' ||
+      !unlocked.includes(item.id) ||
+      seen.has(item.id) ||
+      typeof item.x !== 'number' ||
+      !Number.isFinite(item.x) ||
+      typeof item.y !== 'number' ||
+      !Number.isFinite(item.y)
+    )
+      continue;
+    seen.add(item.id);
+    roomItems.push({ id: item.id, ...clampRoomPosition(item.id, item.x, item.y) });
+  }
+  return roomItems;
+}
+
+function migrateEquipped(value: unknown, unlocked: string[]): RoomPlacement[] {
+  const equipped = object(value) ?? {};
+  // Keep familiar locations, with floor pieces behind the smaller objects.
+  const positions = {
+    floor: { x: 48, y: 80 },
+    wall: { x: 76, y: 26 },
+    desk: { x: 25, y: 55 },
+    shelf: { x: 73, y: 52 },
+  };
+  return Object.entries(positions).flatMap(([slot, position]) => {
+    const id = equipped[slot];
+    if (
+      typeof id !== 'string' ||
+      !unlocked.includes(id) ||
+      !decorations.some((item) => item.id === id && item.slot === slot)
+    )
+      return [];
+    const { x, y } = id === 'bookshelf' ? { x: 85, y: 77 } : position;
+    return [{ id, ...clampRoomPosition(id, x, y) }];
+  });
 }
 
 export function loadPlayer(): Player {
@@ -92,7 +141,7 @@ export function loadPlayer(): Player {
     const saved: unknown = JSON.parse(raw);
     const player = restorePlayer(saved);
     if (!player) return getInitialPlayer();
-    if (object(saved)?.version !== 1) savePlayer(player);
+    if (object(saved)?.version !== 2) savePlayer(player);
     return player;
   } catch {
     return getInitialPlayer();
@@ -106,7 +155,7 @@ export function savePlayer(player: Player): boolean {
     if (raw) {
       try {
         const version = object(JSON.parse(raw))?.version;
-        if (typeof version === 'number' && version > 1) return false;
+        if (typeof version === 'number' && version > 2) return false;
       } catch {
         /* An unreadable save can be replaced by the current adventure. */
       }

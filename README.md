@@ -21,7 +21,7 @@ Baker Ben, Professor Hamster, and Pip the Pigeon recur throughout. Each conclusi
 
 Junior Detective, Detective, and Master Detective adjust quantities, wording, clue counts, recipe length, route checkpoints, sorting objects, picture grids, and hints. Junior hints appear immediately and picture pieces do not need rotation. Settings can change the level at any time; collected discoveries remain saved, and unsolved puzzles use the new level.
 
-Cases unlock in order within each location. First completion grants the case’s stars, coins, sticker, and decoration. Each location earns nine stars and 150 coins; all six mysteries earn 18 stars and 300 coins before any purchases. Replays give no extra currency or duplicate rewards. Park repairs remain visible on ordinary visits; a replay temporarily restores its own mystery while keeping the other completed repairs. Spend earned coins on decorations and equip them in four predefined slots: desk, shelf, wall, and floor.
+Cases unlock in order within each location. First completion grants the case’s stars, coins, sticker, and decoration. Each location earns nine stars and 150 coins; all six mysteries earn 18 stars and 300 coins before any purchases. Replays give no extra currency or duplicate rewards. Park repairs remain visible on ordinary visits; a replay temporarily restores its own mystery while keeping the other completed repairs. Spend earned coins on decorations and arrange every owned treasure together in the clubhouse. Drag from the collection or move items around the room with a mouse, pen, or touch. Tap a collection item to place or select it, then use the move buttons or arrow keys (Shift moves farther). Bring items to the front or send them to the back when they overlap; Put away returns a treasure to the collection without losing ownership. Positions and layers save automatically and scale with the room on smaller screens.
 
 The [Sunny Park design](design_docs/park-design.md) describes its mysteries, evidence, and visual progress. The [feature plan](design_docs/park-feature-plan.md) records the implementation scope and acceptance checks.
 
@@ -78,10 +78,13 @@ src/
   App.tsx                 Navigation, case flow, onboarding, notebook, settings, clubhouse
   game.ts                 Typed case definitions, difficulty data, items, validation, rewards
   storage.ts              Local save loading, validation, migration, and writing
+  clubhouse.ts            Room dimensions, default positions, and placement bounds
   game.test.ts            Game and save tests
   components/
     Character.tsx         Original SVG character portraits and detective customization
     RoomItem.tsx          Original SVG clubhouse furniture and decorations
+    Clubhouse.tsx         Free placement, touch dragging, keyboard and button controls
+    Clubhouse.css         Responsive clubhouse canvas and editor styles
     Modal.tsx             Native dialog with labels and close controls
     Puzzle.tsx            Number, sequence, choice, route, sorting, and tile puzzle views
     SequenceCards.tsx     Recipe card dragging, tap placement, and keyboard reordering
@@ -126,20 +129,20 @@ Native buttons, labelled controls, visible focus outlines, dialog semantics, sta
 1. Add a `GameCase` to `casesFor()` in `src/game.ts`, with a unique stable `id`, location, intro, character clues, three puzzles, conclusion options, correct conclusion index, reveal, and rewards. Follow the existing difficulty variants and the mandatory [Kids Game Story Design Guide](design_docs/kids-game-story-design-guide.md).
 2. Give clues and puzzles stable IDs. Link each puzzle to its clue with `puzzleId`; use the existing character keys `ben`, `hamster`, and `pip`. Provide enough evidence to explain the conclusion without guessing. For Park clues, provide object-specific hotspot coordinates and optional post-solve discovery text.
 3. Extend the explicit unlock order in `canPlayCase()`. The case picker and flow consume the returned definitions; new locations would also require their map and navigation UI.
-4. If granting a new decoration, add its stable ID and valid furniture slot to `decorations`. Put standalone illustration assets in `public/` so the build precaches them.
+4. If granting a new decoration, add its stable ID to `decorations` and its dimensions and starting position to `clubhouse.ts`. The furniture slot remains legacy migration metadata; it does not restrict placement. Put standalone illustration assets in `public/` so the build precaches them.
 5. Extend `src/game.test.ts` to check the new case at each level, its unlock prerequisite, answers, reward references, and one-time completion behavior.
 
 IDs are used in saved progress. Keep existing IDs stable; renaming or removing them requires an intentional save migration. Choice and conclusion answer indices must match the displayed option order.
 
 ## Local saves
 
-`src/storage.ts` stores JSON in `localStorage` under `tiny-town-detectives.player`. This small save contains version `1`, profile choices, difficulty, audio preferences, earned currency, completed cases, stickers, owned/equipped decorations, and one active case session. `App.tsx` saves player-state changes automatically.
+`src/storage.ts` stores JSON in `localStorage` under `tiny-town-detectives.player`. This small save contains version `2`, profile choices, difficulty, audio preferences, earned currency, completed cases, stickers, owned decorations, independent room positions, and one active case session. Each `roomItems` entry stores a stable decoration ID and its center as x/y percentages; array order stores the layers from back to front. `App.tsx` saves player-state changes automatically.
 
 You can leave a mystery for the map or clubhouse and resume it later. Starting another case while one is open returns to the saved mystery first, preserving discoveries. Temporary typed answers, unsubmitted card order, and open dialogs are not saved.
 
-In **Settings → Reset all progress**, confirm **Yes, reset all progress** to start again from the first mystery. This permanently clears completed cases, notebook discoveries, stars, coins, stickers, and owned/equipped clubhouse decorations on this device. Your detective nickname, look, adventure level, and audio preferences stay the same. **Keep my progress**, Close, or Escape cancels the reset. If the fresh save cannot be written, your current progress stays intact and the game shows an error.
+In **Settings → Reset all progress**, confirm **Yes, reset all progress** to start again from the first mystery. This permanently clears completed cases, notebook discoveries, stars, coins, stickers, and owned and placed clubhouse decorations on this device. Your detective nickname, look, adventure level, and audio preferences stay the same. **Keep my progress**, Close, or Escape cancels the reset. If the fresh save cannot be written, your current progress stays intact and the game shows an error.
 
-The loader supplies defaults, sanitizes invalid fields, and discards unknown clue, puzzle, case, or decoration IDs. Unversioned and version `0` saves are normalized and rewritten as version `1`. Existing Bakery saves keep their IDs, progress, currency, and equipment; Park adds content without changing the saved shape or version. No location or repair flags are stored, and route, sorting, and tile drafts are temporary. Future save versions are preserved rather than overwritten; the app signals when saving fails. To introduce version `2`, add an explicit migration in `storage.ts` and corresponding round-trip tests before changing the writer.
+The loader supplies defaults, sanitizes invalid fields, and discards unknown clue, puzzle, case, or decoration IDs. Unversioned, version `0`, and version `1` saves are migrated and rewritten as version `2`: valid equipped items become independently movable items near their previous positions, while ownership, progress, currency, and preferences are retained. Current room layouts allow each owned decoration once, reject invalid coordinates, keep items inside the room, and preserve layer order. An empty layout stays empty. Future save versions are preserved rather than overwritten; the app signals when saving fails.
 
 Saves belong to that browser and origin. Clearing site storage removes them; devices and browsers do not synchronize. A nickname stays local and should be a made-up name.
 

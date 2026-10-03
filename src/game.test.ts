@@ -13,6 +13,7 @@ import {
   type PuzzleAnswer,
 } from './game';
 import { loadPlayer, resetPlayerProgress, SAVE_KEY, savePlayer } from './storage';
+import { clampRoomPosition, defaultRoomPlacement, getRoomItemSize } from './clubhouse';
 
 const bakeryCases = (difficulty: Difficulty) =>
   casesFor(difficulty).filter((gameCase) => gameCase.location === 'bakery');
@@ -362,6 +363,31 @@ describe('decoration economy', () => {
   });
 });
 
+describe('clubhouse placements', () => {
+  it('keeps square illustrations fully inside a 4:3 room, including at its edges', () => {
+    for (const item of decorations) {
+      const { width, height } = getRoomItemSize(item.id);
+      expect(height).toBeCloseTo((width * 4) / 3);
+      const topLeft = clampRoomPosition(item.id, -100, -100);
+      const bottomRight = clampRoomPosition(item.id, 200, 200);
+      expect(topLeft.x - width / 2).toBeCloseTo(0);
+      expect(topLeft.y - height / 2).toBeCloseTo(0);
+      expect(bottomRight.x + width / 2).toBeCloseTo(100);
+      expect(bottomRight.y + height / 2).toBeCloseTo(100);
+      expect(clampRoomPosition(item.id, 43.25, 61.5)).toEqual({ x: 43.25, y: 61.5 });
+    }
+  });
+
+  it('gives every collectible a distinct, visible starting position without assigning slots', () => {
+    const placements = decorations.map((item) => defaultRoomPlacement(item.id));
+    expect(new Set(placements.map(({ x, y }) => `${x},${y}`)).size).toBe(decorations.length);
+    for (const { id, x, y } of placements) {
+      expect(clampRoomPosition(id, x, y)).toEqual({ x, y });
+    }
+    expect(getInitialPlayer().roomItems).toEqual([]);
+  });
+});
+
 describe('local saves', () => {
   let values: Map<string, string>;
   beforeEach(() => {
@@ -378,7 +404,7 @@ describe('local saves', () => {
     const first = caseById('missing-cookies');
     const player = completeCase(readyToFinish(first), first);
     player.nickname = 'Pip Pal';
-    player.equipped = { shelf: 'cookie-trophy' };
+    player.roomItems = [{ id: 'cookie-trophy', x: 42.5, y: 61 }];
     player.music = true;
     player.session = {
       caseId: 'giant-cupcake',
@@ -391,8 +417,9 @@ describe('local saves', () => {
   });
 
   it('preserves a pre-expansion version-1 Bakery save and unlocks Park from saved completions', () => {
-    const oldSave: Player = {
+    const oldSave = {
       ...getInitialPlayer(),
+      version: 1,
       nickname: 'Old Detective',
       stars: 9,
       coins: 125,
@@ -412,13 +439,159 @@ describe('local saves', () => {
     };
     values.set(SAVE_KEY, JSON.stringify(oldSave));
     const loaded = loadPlayer();
-    expect(loaded).toEqual(oldSave);
+    const { equipped, ...profile } = oldSave;
+    const migrated = {
+      ...profile,
+      version: 2,
+      roomItems: [
+        { id: 'magnifying-poster', x: 76, y: 26 },
+        { id: 'lamp', x: 25, y: 55 },
+        { id: 'cookie-trophy', x: 73, y: 52 },
+      ],
+    };
+    expect(loaded.roomItems).toHaveLength(Object.keys(equipped).length);
+    expect(loaded).toEqual(migrated);
     expect(canVisitPark(loaded)).toBe(true);
     expect(canPlayCase(loaded, 'park-wrong-bench')).toBe(true);
-    expect(loaded.version).toBe(1);
+    expect(loaded.version).toBe(2);
+    expect(JSON.parse(values.get(SAVE_KEY)!)).toEqual(migrated);
     expect(savePlayer(loaded)).toBe(true);
-    expect(loadPlayer()).toEqual(oldSave);
+    expect(loadPlayer()).toEqual(migrated);
   });
+
+  it.each([undefined, 0, 1])(
+    'migrates version %s placements once, retains unplaced possessions, and rejects invalid slots',
+    (version) => {
+      values.set(
+        SAVE_KEY,
+        JSON.stringify({
+          version,
+          coins: 95,
+          stars: 3,
+          completed: ['missing-cookies'],
+          unlocked: ['rug', 'lamp', 'globe', 'magnifying-poster'],
+          equipped: {
+            floor: 'rug',
+            desk: 'lamp',
+            wall: 'magnifying-poster',
+            shelf: 'cookie-trophy',
+            invented: 'globe',
+          },
+        }),
+      );
+      const loaded = loadPlayer();
+      expect(loaded.version).toBe(2);
+      expect(loaded.coins).toBe(95);
+      expect(loaded.stars).toBe(3);
+      expect(loaded.completed).toEqual(['missing-cookies']);
+      expect(loaded.unlocked).toEqual([
+        'rug',
+        'lamp',
+        'globe',
+        'magnifying-poster',
+        'cookie-trophy',
+      ]);
+      expect(loaded.roomItems).toEqual([
+        { id: 'rug', x: 48, y: 80 },
+        { id: 'magnifying-poster', x: 76, y: 26 },
+        { id: 'lamp', x: 25, y: 55 },
+        { id: 'cookie-trophy', x: 73, y: 52 },
+      ]);
+      expect(loaded).not.toHaveProperty('equipped');
+      expect(JSON.parse(values.get(SAVE_KEY)!)).toEqual(loaded);
+      expect(loadPlayer()).toEqual(loaded);
+
+      values.set(
+        SAVE_KEY,
+        JSON.stringify({
+          version,
+          unlocked: ['bookshelf', 'rug'],
+          equipped: { floor: 'bookshelf', shelf: 'rug', desk: 'lamp' },
+        }),
+      );
+      expect(loadPlayer().roomItems).toEqual([{ id: 'bookshelf', x: 85, y: 77 }]);
+    },
+  );
+
+  it('round-trips all eleven collectibles together, with overlapping positions and layer order', () => {
+    const owned = decorations.map((item) => item.id);
+    const player: Player = {
+      ...getInitialPlayer(),
+      unlocked: owned,
+      roomItems: [...owned].reverse().map((id) => ({ id, x: 50, y: 50 })),
+    };
+    expect(player.roomItems).toHaveLength(11);
+    expect(savePlayer(player)).toBe(true);
+    expect(loadPlayer()).toEqual(player);
+
+    const moved: Player = {
+      ...player,
+      roomItems: [...player.roomItems.slice(1), { ...player.roomItems[0], x: 25.125, y: 63.25 }],
+    };
+    expect(savePlayer(moved)).toBe(true);
+    expect(loadPlayer().roomItems).toEqual(moved.roomItems);
+  });
+
+  it('sanitizes room contents while preserving valid positions and their stacking order', () => {
+    values.set(
+      SAVE_KEY,
+      JSON.stringify({
+        version: 2,
+        unlocked: ['rug', 'lamp', 'globe', 'cookie-trophy', 'bookshelf', 'unknown'],
+        roomItems: [
+          { id: 'rug', x: -999, y: 999 },
+          { id: 'unknown', x: 50, y: 50 },
+          { id: 'hamster-plush', x: 50, y: 50 },
+          { id: 'lamp', x: '40', y: 50 },
+          null,
+          [],
+          { id: 'globe', x: 73.25, y: 28.5 },
+          { id: 'rug', x: 50, y: 50 },
+          { id: 'bookshelf', x: 999, y: -999 },
+          { id: 'cookie-trophy', x: 50, y: null },
+          { id: 'lamp', x: 32.5, y: 63.125 },
+        ],
+      }),
+    );
+    const player = loadPlayer();
+    expect(player.roomItems).toEqual([
+      { id: 'rug', x: 15, y: 80 },
+      { id: 'globe', x: 73.25, y: 28.5 },
+      { id: 'bookshelf', x: 88, y: 16 },
+      { id: 'lamp', x: 32.5, y: 63.125 },
+    ]);
+    expect(player.unlocked).not.toContain('unknown');
+    expect(savePlayer(player)).toBe(true);
+    expect(loadPlayer()).toEqual(player);
+  });
+
+  it('rejects non-finite coordinates parsed from numeric overflow', () => {
+    values.set(
+      SAVE_KEY,
+      '{"version":2,"unlocked":["lamp","globe"],"roomItems":[{"id":"lamp","x":1e400,"y":50},{"id":"globe","x":50,"y":-1e400}]}',
+    );
+    expect(loadPlayer().roomItems).toEqual([]);
+  });
+
+  it.each([[], undefined, null, {}].map((roomItems) => ({ roomItems })))(
+    'keeps version-2 room contents empty for $roomItems without restoring retired equipped slots',
+    ({ roomItems }) => {
+      values.set(
+        SAVE_KEY,
+        JSON.stringify({
+          ...getInitialPlayer(),
+          unlocked: ['lamp'],
+          equipped: { desk: 'lamp' },
+          roomItems,
+        }),
+      );
+      const player = loadPlayer();
+      expect(player.unlocked).toEqual(['lamp']);
+      expect(player.roomItems).toEqual([]);
+      expect(savePlayer(player)).toBe(true);
+      expect(loadPlayer().roomItems).toEqual([]);
+    },
+  );
 
   it('round-trips Park discoveries and rewards at each difficulty', () => {
     for (const difficulty of ['junior', 'detective', 'master'] as const) {
@@ -428,7 +601,7 @@ describe('local saves', () => {
       )) {
         player = completeCase(readyToFinish(gameCase, player), gameCase);
       }
-      player.equipped = { wall: 'park-picnic-pennant' };
+      player.roomItems = [defaultRoomPlacement('park-picnic-pennant')];
       const flowers = caseById('park-flower-signs', difficulty);
       player.session = {
         caseId: flowers.id,
@@ -466,12 +639,9 @@ describe('local saves', () => {
         ...player,
         coins: player.coins - purchases.reduce((total, item) => total + item.price, 0),
         unlocked: [...player.unlocked, ...purchases.map((item) => item.id)],
-        equipped: {
-          shelf: 'cookie-trophy',
-          wall: 'park-picnic-pennant',
-          desk: 'lamp',
-          floor: 'rug',
-        },
+        roomItems: ['rug', 'park-picnic-pennant', 'cookie-trophy', 'lamp'].map(
+          defaultRoomPlacement,
+        ),
       };
       const flowers = caseById('park-flower-signs', difficulty);
       player.session = {
@@ -564,10 +734,11 @@ describe('local saves', () => {
     );
     const player = loadPlayer();
     expect(player.nickname).toBe('Acorn');
-    expect(player.version).toBe(1);
+    expect(player.version).toBe(2);
     expect(player.music).toBe(false);
     expect(player.unlocked).toContain('cookie-trophy');
-    expect(JSON.parse(values.get(SAVE_KEY)!).version).toBe(1);
+    expect(player.roomItems).toEqual([]);
+    expect(JSON.parse(values.get(SAVE_KEY)!).version).toBe(2);
   });
 
   it('recovers corrupt JSON and sanitizes invalid saved fields', () => {
@@ -594,7 +765,7 @@ describe('local saves', () => {
     expect(player.stars).toBe(0);
     expect(player.hat).toBe('cap');
     expect(player.completed).toEqual([]);
-    expect(player.equipped).toEqual({});
+    expect(player.roomItems).toEqual([]);
     expect(player.session?.clues).toEqual(['cookie-trays']);
     expect(player.session?.solved).toEqual(['cookie-total']);
   });
@@ -614,7 +785,7 @@ describe('local saves', () => {
   });
 
   it('preserves a future-version save instead of overwriting it', () => {
-    const future = JSON.stringify({ version: 2, coins: 999 });
+    const future = JSON.stringify({ version: 3, coins: 999 });
     values.set(SAVE_KEY, future);
     expect(loadPlayer()).toEqual(getInitialPlayer());
     expect(savePlayer(getInitialPlayer())).toBe(false);

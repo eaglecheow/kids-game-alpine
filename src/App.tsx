@@ -36,7 +36,7 @@ import {
 } from './game';
 import { loadPlayer, resetPlayerProgress, savePlayer } from './storage';
 import { Character } from './components/Character';
-import { RoomItem } from './components/RoomItem';
+import { Clubhouse } from './components/Clubhouse';
 import { Modal } from './components/Modal';
 import { Puzzle } from './components/Puzzle';
 import { ParkScene, ParkEvidence } from './components/ParkScene';
@@ -918,7 +918,7 @@ export default function App() {
                 <h1>
                   Make yourself <span>at home.</span>
                 </h1>
-                <p>A cozy place for big ideas. Decorate with your hard-earned discoveries.</p>
+                <p>A cozy place for big ideas. Make room for every hard-earned discovery.</p>
               </div>
               <div className="clubhouse-coins">
                 <Coins size={23} />
@@ -926,97 +926,7 @@ export default function App() {
                 <span>to make it yours</span>
               </div>
             </section>
-            <div className="clubhouse-layout">
-              <section className="clubhouse-room" aria-label="Your decorated detective clubhouse">
-                <div className="room-window">
-                  <span />
-                  <span />
-                  <span />
-                  <span />
-                </div>
-                <div className={`wall-poster ${player.equipped.wall ? 'has-item' : ''}`}>
-                  {player.equipped.wall ? <RoomItem id={player.equipped.wall} size={125} /> : '🔍'}
-                  <small>STAY CURIOUS</small>
-                </div>
-                <div className="room-bunting">▾ ▾ ▾ ▾ ▾ ▾</div>
-                <div className="room-shelf">
-                  <span>
-                    {player.equipped.shelf ? (
-                      <RoomItem id={player.equipped.shelf} size={85} />
-                    ) : (
-                      '🗂️'
-                    )}
-                  </span>
-                  <span className="trophy-stars">{player.stickers.join(' ') || '✦'}</span>
-                </div>
-                <div className="room-desk">
-                  <span>
-                    {player.equipped.desk ? <RoomItem id={player.equipped.desk} size={95} /> : '✏️'}
-                  </span>
-                  <div className="desk-book">📖</div>
-                </div>
-                <div className={`room-rug ${player.equipped.floor === 'rug' ? 'has-rug' : ''}`} />
-                {player.equipped.floor === 'bookshelf' && (
-                  <div className="room-floor-item">
-                    <RoomItem id="bookshelf" size={150} />
-                  </div>
-                )}
-                <div className="room-detective">
-                  <Character who="detective" size={150} avatar={player.avatar} hat={player.hat} />
-                </div>
-                <div className="room-name">{player.nickname}'s clubhouse</div>
-              </section>
-              <aside className="decoration-shop">
-                <div className="shop-title">
-                  <h3>
-                    <Sparkles size={20} />A little room magic
-                  </h3>
-                  <p>Choose a treasure. Find its cozy spot.</p>
-                </div>
-                <div className="decorations-grid">
-                  {decorations.map((item) => {
-                    const owned = player.unlocked.includes(item.id);
-                    const equipped = player.equipped[item.slot] === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        className={`decoration-item ${equipped ? 'equipped' : ''}`}
-                        disabled={!owned && player.coins < item.price}
-                        onClick={() => {
-                          if (!owned && player.coins < item.price) return;
-                          update({
-                            coins: owned ? player.coins : player.coins - item.price,
-                            unlocked: owned ? player.unlocked : [...player.unlocked, item.id],
-                            equipped: { ...player.equipped, [item.slot]: equipped ? '' : item.id },
-                          });
-                          playSound('click', player.sound);
-                        }}
-                      >
-                        <span className="decoration-icon">
-                          <RoomItem id={item.id} size={42} />
-                        </span>
-                        <strong>{item.name}</strong>
-                        <small>
-                          {equipped ? (
-                            <>
-                              <Check size={13} />
-                              Placed
-                            </>
-                          ) : owned ? (
-                            'Place in room'
-                          ) : (
-                            <>
-                              <Coins size={13} />
-                              {item.price}
-                            </>
-                          )}
-                        </small>
-                      </button>
-                    );
-                  })}
-                </div>
-              </aside>
-            </div>
+            <Clubhouse player={player} onChange={update} />
             <div className="sticker-strip">
               <h3>Your sticker collection</h3>
               {player.stickers.length ? (

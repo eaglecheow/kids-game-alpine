@@ -8,8 +8,15 @@ export interface CaseSession {
   introSeen: boolean;
 }
 
+export interface RoomPlacement {
+  id: string;
+  // Center coordinates, as percentages of the fixed 4:3 clubhouse canvas.
+  x: number;
+  y: number;
+}
+
 export interface Player {
-  version: 1;
+  version: 2;
   nickname: string;
   avatar: number;
   hat: 'cap' | 'beanie' | 'bow';
@@ -19,7 +26,7 @@ export interface Player {
   completed: string[];
   stickers: string[];
   unlocked: string[];
-  equipped: Record<string, string>;
+  roomItems: RoomPlacement[]; // Back-to-front display order.
   sound: boolean;
   music: boolean;
   onboarded: boolean;
@@ -113,6 +120,7 @@ export const decorations: {
   name: string;
   icon: string;
   price: number;
+  // Legacy save metadata; decorations can now be placed anywhere in the room.
   slot: 'wall' | 'floor' | 'desk' | 'shelf';
 }[] = [
   { id: 'lamp', name: 'Detective lamp', icon: '💡', price: 20, slot: 'desk' },
@@ -130,7 +138,7 @@ export const decorations: {
 
 export function getInitialPlayer(): Player {
   return {
-    version: 1,
+    version: 2,
     nickname: 'Detective',
     avatar: 0,
     hat: 'cap',
@@ -140,7 +148,7 @@ export function getInitialPlayer(): Player {
     completed: [],
     stickers: [],
     unlocked: [],
-    equipped: {},
+    roomItems: [],
     sound: true,
     music: false,
     onboarded: false,
