@@ -834,6 +834,8 @@ footer button {
   gap: 24px;
 }
 .case-card {
+  display: flex;
+  flex-direction: column;
   border: 1px solid #e5e3d7;
   background: #fffdf9;
   border-radius: 19px;
@@ -872,13 +874,21 @@ footer button {
   color: var(--green);
 }
 .case-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   padding: 25px;
+}
+.case-card-body > .category-tag {
+  align-self: flex-start;
 }
 .case-card h2 {
   font-size: 25px;
   margin: 13px 0;
 }
 .case-card p {
+  /* Absorb spare row height so metadata and actions stay at the card's bottom. */
+  flex: 1;
   font-size: 13px;
   color: #899486;
   min-height: 44px;
