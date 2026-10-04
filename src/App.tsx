@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import {
   ArrowRight,
   BookOpen,
@@ -11,7 +11,6 @@ import {
   Lightbulb,
   LockKeyhole,
   Map,
-  Music2,
   RotateCcw,
   Search,
   Settings,
@@ -30,11 +29,13 @@ import {
   canVisitPark,
   decorations,
   type Player,
-  type Difficulty,
   type Clue,
   type GameCase,
 } from './game';
 import { loadPlayer, resetPlayerProgress, savePlayer } from './storage';
+import { CaseArt } from './components/CaseArt';
+import { Onboarding } from './components/Onboarding';
+import { SettingsPanel } from './components/SettingsPanel';
 import { Character } from './components/Character';
 import { Clubhouse } from './components/Clubhouse';
 import { Modal } from './components/Modal';
@@ -62,11 +63,6 @@ interface InstallPrompt extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: string }>;
 }
-const difficultyLabels: Record<Difficulty, string> = {
-  junior: 'Junior Detective',
-  detective: 'Detective',
-  master: 'Master Detective',
-};
 const characterNames = { ben: 'Baker Ben', hamster: 'Professor Hamster', pip: 'Pip the Pigeon' };
 const locations = [
   { name: 'Library', x: 24, y: 38, locked: true, className: 'library' },
@@ -88,124 +84,6 @@ const locationDetails = {
   },
 };
 
-function CaseArt({ gameCase }: { gameCase: GameCase }) {
-  if (gameCase.location === 'park') {
-    const images: Record<string, string> = {
-      'park-wrong-bench': publicAsset('park-bench-thumb.svg'),
-      'park-flower-signs': publicAsset('park-flowers-thumb.svg'),
-      'park-kite-tails': publicAsset('park-kites-thumb.svg'),
-    };
-    return (
-      <img
-        className="case-art park-case-art"
-        src={images[gameCase.id]}
-        alt={gameCase.description}
-      />
-    );
-  }
-  return (
-    <CookieArt
-      cupcake={gameCase.id === 'giant-cupcake'}
-      recipe={gameCase.id === 'mystery-recipe'}
-    />
-  );
-}
-
-function CookieArt({ cupcake = false, recipe = false }: { cupcake?: boolean; recipe?: boolean }) {
-  return (
-    <svg viewBox="0 0 220 140" className="case-art" aria-hidden="true">
-      <ellipse cx="114" cy="120" rx="75" ry="12" fill="#ecb569" opacity=".25" />
-      {recipe ? (
-        <g transform="rotate(-8 110 72)">
-          <rect x="53" y="27" width="117" height="92" rx="7" fill="#c0cbb2" />
-          <rect
-            x="47"
-            y="20"
-            width="117"
-            height="92"
-            rx="7"
-            fill="#fff8df"
-            stroke="#d5be92"
-            strokeWidth="2"
-          />
-          <path
-            d="M65 64h81M65 80h61M65 96h74"
-            stroke="#b2b594"
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
-          <path d="M83 49v-7c-10 0-7-14 1-11 3-8 13-8 16 0 8-3 11 11 1 11v7Z" fill="#e7c09a" />
-          <circle cx="143" cy="40" r="6" fill="#dc9d6d" />
-        </g>
-      ) : cupcake ? (
-        <>
-          <path d="M66 74h92l-15 48H83Z" fill="#e47e73" />
-          <path d="m88 85 7 31m18-31v31m20-31-7 31" stroke="#ffc3ac" strokeWidth="6" />
-          <path
-            d="M61 75c-13-24 8-40 26-39-2-25 41-30 49-10 26-3 38 24 24 48Z"
-            fill="#fff5de"
-            stroke="#ead7b5"
-            strokeWidth="2"
-          />
-          <circle cx="117" cy="24" r="11" fill="#db665c" />
-          <path
-            d="m83 57 6 3m39-15 6 4m-24 17 5-2m38-6 6 2"
-            stroke="#e49b4d"
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
-        </>
-      ) : (
-        <>
-          <rect
-            x="31"
-            y="50"
-            width="153"
-            height="68"
-            rx="14"
-            fill="#8ea7a1"
-            transform="rotate(-7 108 84)"
-          />
-          <rect
-            x="37"
-            y="53"
-            width="140"
-            height="56"
-            rx="9"
-            fill="#c6d5cb"
-            transform="rotate(-7 108 84)"
-          />
-          {[
-            [65, 73],
-            [105, 66],
-            [146, 65],
-            [79, 99],
-            [126, 94],
-          ].map(([x, y], i) => (
-            <g key={i}>
-              <circle cx={x} cy={y} r="20" fill="#c68337" />
-              <circle cx={x} cy={y - 2} r="18" fill="#edb45f" />
-              <path
-                d={`m${x - 8} ${y - 6} 4 -2m8 3 4 2m-11 9 4 2m6-14 2 1`}
-                stroke="#805436"
-                strokeWidth="5"
-                strokeLinecap="round"
-              />
-            </g>
-          ))}
-          <path
-            d="m166 28 5-10m-19 12-3-9m28 23 10-3"
-            stroke="#ecac47"
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
-        </>
-      )}
-      <path d="m29 30 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z" fill="#e9a93b" />
-    </svg>
-  );
-}
-
 export default function App() {
   const [player, setPlayer] = useState<Player>(loadPlayer);
   const [page, setPage] = useState<Page>('town');
@@ -221,7 +99,8 @@ export default function App() {
   const [saveError, setSaveError] = useState(false);
   const [resetError, setResetError] = useState(false);
   const [install, setInstall] = useState<InstallPrompt | null>(null);
-  const cases = casesFor(player.difficulty);
+  // Case definitions only change with difficulty, not navigation or player progress.
+  const cases = useMemo(() => casesFor(player.difficulty), [player.difficulty]);
   const visibleCases =
     page === 'bakery' || page === 'park' ? cases.filter((item) => item.location === page) : cases;
   const caseNumber = (item: GameCase) =>
@@ -1020,97 +899,15 @@ export default function App() {
       )}
       {overlay === 'settings' && (
         <Modal label="Detective settings" onClose={() => setOverlay(null)}>
-          <div className="settings-content">
-            <div className="eyebrow">JUST THE WAY YOU LIKE IT</div>
-            <h2>Detective settings</h2>
-            <div className="profile-settings">
-              <Character who="detective" size={90} avatar={player.avatar} hat={player.hat} />
-              <div>
-                <label htmlFor="settings-nickname">Detective nickname</label>
-                <input
-                  id="settings-nickname"
-                  maxLength={16}
-                  value={player.nickname}
-                  onChange={(event) => update({ nickname: event.target.value })}
-                  onBlur={() => {
-                    if (!player.nickname.trim()) update({ nickname: 'Detective' });
-                  }}
-                />
-                <small>Only saved on this device.</small>
-              </div>
-            </div>
-            <label className="field-label" htmlFor="difficulty">
-              Adventure level
-            </label>
-            <select
-              id="difficulty"
-              value={player.difficulty}
-              onChange={(event) => update({ difficulty: event.target.value as Difficulty })}
-            >
-              {Object.entries(difficultyLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-            <p className="small muted">Change this anytime. Your discoveries stay with you.</p>
-            <div className="settings-toggle">
-              <span>
-                <Volume2 size={20} />
-                <div>
-                  Little sound effects<small>A sparkle for each discovery</small>
-                </div>
-              </span>
-              <button
-                role="switch"
-                aria-checked={player.sound}
-                aria-label="Sound effects"
-                className={`toggle ${player.sound ? 'on' : ''}`}
-                onClick={() => {
-                  update({ sound: !player.sound });
-                  playSound('click', !player.sound);
-                }}
-              >
-                <span />
-              </button>
-            </div>
-            <div className="settings-toggle">
-              <span>
-                <Music2 size={20} />
-                <div>
-                  Cozy background music<small>A quiet tune for curious minds</small>
-                </div>
-              </span>
-              <button
-                role="switch"
-                aria-checked={player.music}
-                aria-label="Background music"
-                className={`toggle ${player.music ? 'on' : ''}`}
-                onClick={() => {
-                  update({ music: !player.music });
-                  setMusic(!player.music);
-                }}
-              >
-                <span />
-              </button>
-            </div>
-            <button className="button secondary full" onClick={() => setOverlay('onboard')}>
-              Change my detective look <Sparkles size={17} />
-            </button>
-            <div className="reset-progress-section">
-              <h3>Start a fresh adventure</h3>
-              <p>Clear your mystery progress and rewards on this device.</p>
-              <button
-                className="button danger full"
-                onClick={() => {
-                  setResetError(false);
-                  setOverlay('reset-progress');
-                }}
-              >
-                <RotateCcw size={18} /> Reset all progress
-              </button>
-            </div>
-          </div>
+          <SettingsPanel
+            player={player}
+            onChange={update}
+            onCustomize={() => setOverlay('onboard')}
+            onReset={() => {
+              setResetError(false);
+              setOverlay('reset-progress');
+            }}
+          />
         </Modal>
       )}
       {overlay === 'reset-progress' && (
@@ -1423,101 +1220,5 @@ export default function App() {
         </Modal>
       )}
     </div>
-  );
-}
-
-function Onboarding({
-  player,
-  onComplete,
-}: {
-  player: Player;
-  onComplete: (changes: Partial<Player>) => void;
-}) {
-  const [nickname, setNickname] = useState(player.onboarded ? player.nickname : '');
-  const [avatar, setAvatar] = useState(player.avatar);
-  const [hat, setHat] = useState(player.hat);
-  const [difficulty, setDifficulty] = useState(player.difficulty);
-  return (
-    <form
-      className="onboarding"
-      onSubmit={(event) => {
-        event.preventDefault();
-        onComplete({ nickname: nickname.trim() || 'Scout', avatar, hat, difficulty });
-      }}
-    >
-      <div className="eyebrow">EVERY GREAT MYSTERY NEEDS YOU</div>
-      <h2>Hello, little detective.</h2>
-      <p>Let's get you ready for your first adventure.</p>
-      <div className="avatar-preview">
-        <Character who="detective" size={115} avatar={avatar} hat={hat} />
-        <span>YOUR NEW ADVENTURE LOOK</span>
-      </div>
-      <label className="field-label" htmlFor="nickname">
-        Pick a detective nickname
-      </label>
-      <input
-        autoFocus
-        id="nickname"
-        maxLength={16}
-        placeholder="How about Scout?"
-        value={nickname}
-        onChange={(event) => setNickname(event.target.value)}
-      />
-      <small className="small muted">A made-up name is perfect. It stays on this device.</small>
-      <fieldset>
-        <legend>Choose your detective</legend>
-        <div className="avatar-options">
-          {[0, 1, 2, 3].map((item) => (
-            <button
-              type="button"
-              aria-label={`Detective avatar ${item + 1}`}
-              aria-pressed={avatar === item}
-              className={avatar === item ? 'selected' : ''}
-              key={item}
-              onClick={() => setAvatar(item)}
-            >
-              <Character who="detective" size={60} avatar={item} hat={hat} />
-            </button>
-          ))}
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>Top it off</legend>
-        <div className="hat-options">
-          {(['cap', 'beanie', 'bow'] as const).map((item) => (
-            <button
-              type="button"
-              key={item}
-              aria-pressed={hat === item}
-              className={hat === item ? 'selected' : ''}
-              onClick={() => setHat(item)}
-            >
-              {item === 'cap'
-                ? '🧢 Detective cap'
-                : item === 'beanie'
-                  ? '🎩 Cozy beanie'
-                  : '🎀 Lucky bow'}
-            </button>
-          ))}
-        </div>
-      </fieldset>
-      <label className="field-label" htmlFor="onboard-difficulty">
-        Choose your adventure level
-      </label>
-      <select
-        id="onboard-difficulty"
-        value={difficulty}
-        onChange={(event) => setDifficulty(event.target.value as Difficulty)}
-      >
-        {Object.entries(difficultyLabels).map(([value, label]) => (
-          <option key={value} value={value}>
-            {label}
-          </option>
-        ))}
-      </select>
-      <button type="submit" className="button primary full">
-        Let's do some detecting <ArrowRight size={18} />
-      </button>
-    </form>
   );
 }

@@ -27,6 +27,9 @@ The [Sunny Park design](design_docs/park-design.md) describes its mysteries, evi
 
 ## Run locally
 
+For setup, architecture, configuration, and the development/deployment workflow, see the
+[getting-started guide](docs/getting-started.md).
+
 Use Node.js 22.12 or newer, or Node.js 20.19–20.x, and npm.
 
 ```sh
@@ -75,12 +78,16 @@ The MVP keeps its engine compact rather than creating a directory for each possi
 
 ```text
 src/
-  App.tsx                 Navigation, case flow, onboarding, notebook, settings, clubhouse
+  App.tsx                 Navigation, case flow, notebook, saved player and modal orchestration
   game.ts                 Typed case definitions, difficulty data, items, validation, rewards
   storage.ts              Local save loading, validation, migration, and writing
   clubhouse.ts            Room dimensions, default positions, and placement bounds
   game.test.ts            Game and save tests
   components/
+    Onboarding.tsx          Detective profile form
+    SettingsPanel.tsx       Profile, difficulty, audio, and reset entry controls
+    DifficultySelect.tsx    Shared difficulty labels and selection
+    CaseArt.tsx             Bakery and Park case illustrations
     Character.tsx         Original SVG character portraits and detective customization
     RoomItem.tsx          Original SVG clubhouse furniture and decorations
     Clubhouse.tsx         Free placement, touch dragging, keyboard and button controls

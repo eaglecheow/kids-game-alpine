@@ -1528,26 +1528,24 @@ export function validateAnswer(puzzle: Puzzle, answer: PuzzleAnswer): boolean {
   return typeof answer === 'number' && Number.isFinite(answer) && answer === puzzle.answer;
 }
 
+// Keep each location's unlock order in one place. Case IDs are persisted in saves.
+const bakeryCaseOrder = ['missing-cookies', 'giant-cupcake', 'mystery-recipe'];
+const parkCaseOrder = ['park-wrong-bench', 'park-flower-signs', 'park-kite-tails'];
+
 export function canVisitPark(player: Player): boolean {
-  return ['missing-cookies', 'giant-cupcake', 'mystery-recipe'].every((id) =>
-    player.completed.includes(id),
-  );
+  return bakeryCaseOrder.every((id) => player.completed.includes(id));
+}
+
+function isUnlockedInOrder(player: Player, id: string, order: string[]): boolean {
+  const index = order.indexOf(id);
+  return index === 0 || (index > 0 && player.completed.includes(order[index - 1]));
 }
 
 export function canPlayCase(player: Player, id: string): boolean {
-  const parkIndex = ['park-wrong-bench', 'park-flower-signs', 'park-kite-tails'].indexOf(id);
-  if (parkIndex >= 0) {
-    return (
-      canVisitPark(player) &&
-      (parkIndex === 0 ||
-        player.completed.includes(['park-wrong-bench', 'park-flower-signs'][parkIndex - 1]))
-    );
+  if (parkCaseOrder.includes(id)) {
+    return canVisitPark(player) && isUnlockedInOrder(player, id, parkCaseOrder);
   }
-  const index = ['missing-cookies', 'giant-cupcake', 'mystery-recipe'].indexOf(id);
-  return (
-    index === 0 ||
-    (index > 0 && player.completed.includes(['missing-cookies', 'giant-cupcake'][index - 1]))
-  );
+  return isUnlockedInOrder(player, id, bakeryCaseOrder);
 }
 
 export function completeCase(player: Player, caseDefinition: GameCase): Player {

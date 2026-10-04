@@ -26,13 +26,23 @@ Use Node.js 22.12+ or 20.19–20.x with npm.
 
 Use strict TypeScript, two-space indentation, semicolons, single quotes, trailing commas, and a 100-column Prettier width. Name components and their `.tsx` files in PascalCase (`RoomItem.tsx`); use camelCase for functions and variables. Follow existing discriminated unions for puzzle types. Keep changes focused and reuse existing modules before adding abstractions or dependencies.
 
+## Readability, Performance, SOLID & DRY
+
+- Give each module one clear responsibility. Keep app navigation and case orchestration in `App`; put self-contained UI in named components and pure game rules in domain functions. Prefer descriptive names, explicit types at boundaries, and early returns over deeply nested conditions.
+- Apply SOLID proportionally: use composition and small prop/callback contracts, keep browser storage and other side effects out of game rules, and extend the existing puzzle union instead of introducing speculative class hierarchies or plugin systems. Preserve the behavior promised by existing component contracts.
+- Apply DRY to shared knowledge and actual repeated behavior, such as difficulty choices and case unlock order. Keep one source of truth. Do not combine unrelated UI merely because its markup looks similar.
+- Identify repeated work before optimizing. Memoize expensive derived data with all relevant dependencies; never rely on memoization for correctness or mutate memoized case definitions. Keep temporary drag state separate from durable saves and avoid storage writes on every pointer movement.
+- Measure relevant work, render counts, timings, or bundle size before and after performance changes. Report the method and scope; do not claim frame-rate or loading improvements from unmeasured assumptions. Avoid blanket memoization, unnecessary indexes for tiny collections, and new dependencies without a demonstrated need.
+- Refactors must retain gameplay, text, styling, accessible controls, save keys/schema/IDs, migration behavior, and one-time rewards. Add regression tests for affected rules and verify affected UI, difficulty changes, reloads, and offline play. Run lint, tests, and the type-checked production build against the final code before deployment.
+- Keep [the development guide](docs/getting-started.md) and README architecture notes accurate when commands, configuration, or module responsibilities change.
+
 ## Testing Guidelines
 
 Use Vitest with descriptive `describe`/`it` blocks and `*.test.ts` filenames beside source. Cover changed puzzle answers, difficulty variants, unlock rules, one-time rewards, and save validation/migrations. No coverage percentage is configured. Run tests, lint, and build for code changes. Manually verify affected UI with keyboard and touch; check offline behavior through the production preview after service-worker activation.
 
 ## Commit & Pull Request Guidelines
 
-History currently contains only `Initial commit`; no established commit convention or PR template exists. Use concise, imperative commit subjects. PRs should describe behavior changes, link relevant issues, report validation, and include screenshots for visual changes.
+Use concise, imperative commit subjects, matching the existing history. PRs should describe behavior changes, link relevant issues, report validation, and include screenshots for visual changes. Follow branch protection and the existing GitHub Pages workflow; deploy only with user authorization after successful verification. Verify the deployed commit, workflow status, and live behavior before reporting deployment success.
 
 ## Persistence & Accessibility
 
